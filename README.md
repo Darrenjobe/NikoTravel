@@ -22,8 +22,11 @@ backend/          FastAPI orchestrator (LLM, entity resolution, RAG, cron report
 docs/             Architecture and product decisions
 ```
 
-`ios/` and `backend/` are scaffolded as the build progresses; `knowledge/` is live
-seed data starting with the trip itinerary.
+`backend/` is a working FastAPI scaffold (see `backend/README.md` to run it);
+`ios/` holds the SwiftUI sources (see `ios/README.md` for Xcode setup);
+`knowledge/` is live seed data starting with the trip itinerary. The full
+system design is in `docs/architecture.md` and the build schedule in
+`docs/plan.md`.
 
 ## App structure (V1)
 

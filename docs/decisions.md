@@ -46,6 +46,22 @@ Running log of decisions made while shaping the V1 prototype. Newest at the bott
   The Underdog"). Implementation note: this is a per-request flag in the chat
   API payload, not a separate endpoint.
 
+## Architecture (decided 2026-08-09)
+
+- **LLM:** Anthropic (Claude) primary via a swappable `services/llm.py`
+  interface; OpenAI plain-chat fallback. Models per role via env
+  (`CHAT_MODEL`/`JOB_MODEL`, default `claude-opus-5`).
+- **Hosting:** Render.com (Frankfurt) — Docker web service + 5GB persistent
+  disk + three cron jobs that curl the job endpoints.
+- **Maps:** Apple MapKit in-app; Google Places API server-side for entity
+  resolution and recommendations; deep links out to Google Maps.
+- **Live search:** Tavily free tier, invoked as a model tool (not on every
+  request).
+- **Auth:** single static bearer token on all routes.
+- **Storage:** SQLite (system of record) + ChromaDB (`knowledge` and
+  `archive` collections) on the persistent disk.
+- Full design: `docs/architecture.md`. Schedule: `docs/plan.md`.
+
 ## Known open questions
 
 - Map when history spans multiple regions (the trip covers ~10): auto-fit bounds
