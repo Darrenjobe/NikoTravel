@@ -27,6 +27,25 @@ Running log of decisions made while shaping the V1 prototype. Newest at the bott
   API contract implication: concierge responses return
   `{ answer_text, places[] }` where places carry name, Place ID, and coords.
 
+## Journey tab & Trip memory (decided 2026-08-09)
+
+- **"Places" tab renamed "Journey"**, split by a segmented control into:
+  - **Places** — the existing filterable history of journaled places.
+  - **Insights** — trend/fact cards about the trip ("you ate at 3 different
+    Greek places today", "every site you've loved was a pre-10 AM visit").
+- **Insights digest job (backend):** runs once or twice a day, but only when
+  2+ interactions (journal entries, concierge Q&A, any conversations) occurred
+  in the trailing 12–24 h. It analyzes that window's full interaction archive —
+  journal entries AND concierge conversations — and emits fact cards. All
+  conversations are archived to make this possible; the archive is the same
+  corpus Trip memory searches.
+- **Trip memory toggle (Ask tab):** a pill above the input bar. When ON, the
+  backend flips retrieval priority to RAG over the entire trip archive
+  (journal + past Q&A + conversations) instead of itinerary-RAG + live search.
+  Answers in this mode cite their source (e.g. "📓 Journal · Sept 5 ·
+  The Underdog"). Implementation note: this is a per-request flag in the chat
+  API payload, not a separate endpoint.
+
 ## Known open questions
 
 - Map when history spans multiple regions (the trip covers ~10): auto-fit bounds

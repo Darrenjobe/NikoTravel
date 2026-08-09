@@ -35,6 +35,10 @@ Five tabs, decided via clickable UX prototype:
 | **Journal** | Feedback capture — place resolution with Yes/No confirmation, explicit Done to file an entry |
 | **Map** | Orange pins for journaled places, blue pins for AI recommendations handed off from Ask |
 | **Today** | Morning Guide (7 AM) and Evening Recap (8 PM) generated server-side |
-| **Places** | Journal history, learned preferences, per-place summary with Google Maps link |
+| **Journey** | Two sections: Places (journal history, learned preferences, per-place summaries with Maps links) and Insights (daily digest job's trend cards about the trip) |
+
+Plus a **Trip memory** toggle on the Ask tab: when on, answers come from RAG over
+the entire trip archive (journal entries + past conversations) with source
+citations, instead of itinerary-RAG + live search.
 
 See `docs/decisions.md` for the scoping decisions and their rationale.
