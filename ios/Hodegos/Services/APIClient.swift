@@ -1,16 +1,16 @@
 import Foundation
 
-/// Thin async client for the Niko backend. Configure the base URL and token
-/// in Config.plist (see ios/README.md) or edit the defaults below for dev.
+/// Thin async client for the Ὁδηγός backend. Configure the base URL and token
+/// in Info.plist (see ios/README.md) or edit the defaults below for dev.
 enum APIConfig {
     static var baseURL: URL {
-        if let s = Bundle.main.object(forInfoDictionaryKey: "NikoBaseURL") as? String,
+        if let s = Bundle.main.object(forInfoDictionaryKey: "HodegosBaseURL") as? String,
            let url = URL(string: s) { return url }
         return URL(string: "http://localhost:8000")!
     }
 
     static var token: String {
-        (Bundle.main.object(forInfoDictionaryKey: "NikoAPIToken") as? String) ?? ""
+        (Bundle.main.object(forInfoDictionaryKey: "HodegosAPIToken") as? String) ?? ""
     }
 }
 

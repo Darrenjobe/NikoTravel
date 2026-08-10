@@ -1,4 +1,4 @@
-# Niko backend
+# Ὁδηγός backend
 
 FastAPI + SQLite + ChromaDB. See `docs/architecture.md` for the design.
 

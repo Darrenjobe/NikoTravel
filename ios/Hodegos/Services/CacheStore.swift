@@ -6,7 +6,7 @@ import Foundation
 enum CacheStore {
     private static var dir: URL {
         let d = FileManager.default.urls(for: .cachesDirectory, in: .userDomainMask)[0]
-            .appendingPathComponent("niko", isDirectory: true)
+            .appendingPathComponent("hodegos", isDirectory: true)
         try? FileManager.default.createDirectory(at: d, withIntermediateDirectories: true)
         return d
     }

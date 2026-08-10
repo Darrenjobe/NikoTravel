@@ -46,6 +46,26 @@ Running log of decisions made while shaping the V1 prototype. Newest at the bott
   The Underdog"). Implementation note: this is a per-request flag in the chat
   API payload, not a separate endpoint.
 
+## Naming (decided 2026-08-10)
+
+The app is **Ὁδηγός** (Greek for "guide", *o-dhi-GOS*). Three names with three
+distinct jobs — they are not interchangeable:
+
+| Name | Used for | Examples |
+|---|---|---|
+| `Ὁδηγός` | Anything the user reads as the app's name | `CFBundleDisplayName`, permission strings, doc titles |
+| `Hodegos` | Identifiers (Latin transliteration) | `ios/Hodegos/`, `HodegosApp.swift`, bundle ID, `HodegosBaseURL`/`HodegosAPIToken`, `hodegos-backend` on Render, `hodegos.db`, cache dir |
+| `Niko` | The in-app assistant persona only | "Ask Niko", "What Niko's learned", the `.niko` chat role, backend system prompts |
+
+Rationale: non-ASCII product/module names cause friction in bundle IDs,
+schemes, hostnames, and CLI tooling, so Greek script is confined to display
+strings. The persona keeps its own name — Niko is the guide *inside* Ὁδηγός.
+
+Not renamed: the GitHub repo (`darrenjobe/nikotravel`) and its local checkout
+path. Renaming the remote would break existing clones and the Render blueprint
+link for no functional gain; it can be done later from GitHub settings if
+desired.
+
 ## Architecture (decided 2026-08-09)
 
 - **LLM:** Anthropic (Claude) primary via a swappable `services/llm.py`

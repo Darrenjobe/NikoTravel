@@ -1,7 +1,7 @@
 import SwiftUI
 
 @main
-struct NikoApp: App {
+struct HodegosApp: App {
     @StateObject private var location = LocationManager()
 
     var body: some Scene {

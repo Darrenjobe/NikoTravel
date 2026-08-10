@@ -1,4 +1,8 @@
-"""Project Niko backend — FastAPI entry point."""
+"""Ὁδηγός (Hodegos) backend — FastAPI entry point.
+
+App name: Ὁδηγός. "Niko" is the in-app assistant persona and appears only in
+prompts and user-facing assistant copy, never as an identifier.
+"""
 from __future__ import annotations
 
 import secrets
@@ -19,7 +23,7 @@ async def require_token(request: Request) -> None:
         raise HTTPException(401, "invalid token")
 
 
-app = FastAPI(title="Niko", docs_url=None, redoc_url=None)
+app = FastAPI(title="Hodegos", docs_url=None, redoc_url=None)
 
 for router in (chat.router, journal.router, today.router, journey.router,
                map_router.router, admin.router):

@@ -2,7 +2,7 @@
 # jobs that curl the job endpoints. Times are UTC (Greece is UTC+3 in Sept).
 services:
   - type: web
-    name: niko-backend
+    name: hodegos-backend
     runtime: docker
     dockerfilePath: ./backend/Dockerfile
     dockerContext: .
@@ -10,7 +10,7 @@ services:
     plan: standard
     healthCheckPath: /healthz
     disk:
-      name: niko-data
+      name: hodegos-data
       mountPath: /data
       sizeGB: 5
     envVars:
@@ -28,40 +28,40 @@ services:
         value: "2026"
 
   - type: cron
-    name: niko-morning
+    name: hodegos-morning
     runtime: image
     image:
       url: docker.io/curlimages/curl:latest
     schedule: "0 4 * * *" # 07:00 Athens
     dockerCommand: >-
       curl -fsS -X POST -H "Authorization: Bearer $API_TOKEN"
-      https://niko-backend.onrender.com/api/jobs/morning
+      https://hodegos-backend.onrender.com/api/jobs/morning
     envVars:
       - key: API_TOKEN
         sync: false
 
   - type: cron
-    name: niko-evening
+    name: hodegos-evening
     runtime: image
     image:
       url: docker.io/curlimages/curl:latest
     schedule: "0 17 * * *" # 20:00 Athens
     dockerCommand: >-
       curl -fsS -X POST -H "Authorization: Bearer $API_TOKEN"
-      https://niko-backend.onrender.com/api/jobs/evening
+      https://hodegos-backend.onrender.com/api/jobs/evening
     envVars:
       - key: API_TOKEN
         sync: false
 
   - type: cron
-    name: niko-insights
+    name: hodegos-insights
     runtime: image
     image:
       url: docker.io/curlimages/curl:latest
     schedule: "0 11,20 * * *" # 14:00 + 23:00 Athens
     dockerCommand: >-
       curl -fsS -X POST -H "Authorization: Bearer $API_TOKEN"
-      https://niko-backend.onrender.com/api/jobs/insights
+      https://hodegos-backend.onrender.com/api/jobs/insights
     envVars:
       - key: API_TOKEN
         sync: false

@@ -1,19 +1,32 @@
-# Niko iOS app — setup
+# Ὁδηγός iOS app — setup
 
-The Swift sources live in `ios/Niko/`. The Xcode project itself isn't checked
-in (project files are machine-generated noise) — create it once locally:
+**Naming:** the app is **Ὁδηγός** (Greek for "guide", *o-dhi-GOS*). Greek
+script is used everywhere the user sees the name; code identifiers use the
+Latin transliteration **Hodegos**. **Niko** is the in-app assistant persona —
+it stays in assistant copy ("Ask Niko", "What Niko's learned") and never
+appears as an identifier.
+
+The Swift sources live in `ios/Hodegos/`. The Xcode project itself isn't
+checked in (project files are machine-generated noise) — create it once
+locally:
 
 ## 1. Create the project
 
 1. Xcode → **File → New → Project → iOS → App**
-2. Product name **Niko**, interface SwiftUI, language Swift, no tests for now.
+2. Product name **Hodegos** (ASCII — the display name is set separately in
+   step 2), interface SwiftUI, language Swift, no tests for now.
 3. Save it anywhere *outside* this repo (or add the generated files to
    `.gitignore` if inside).
-4. Delete the template `ContentView.swift`/`NikoApp.swift`, then drag the
-   `ios/Niko/` folders (`Models`, `Services`, `Views`, plus `NikoApp.swift`
-   and `ContentView.swift`) into the project navigator — check
-   **"Copy items if needed" OFF** and reference them in place, so edits stay
-   in the repo.
+4. Delete the template `ContentView.swift`/`HodegosApp.swift`, then drag the
+   `ios/Hodegos/` folders (`Models`, `Services`, `Views`, plus
+   `HodegosApp.swift` and `ContentView.swift`) into the project navigator —
+   check **"Copy items if needed" OFF** and reference them in place, so edits
+   stay in the repo.
+
+> Keep the target, module, and bundle identifier ASCII (`Hodegos`,
+> `com.yourname.hodegos`). Non-ASCII product/module names cause friction in
+> bundle IDs, schemes, and command-line tooling — the Greek name is applied
+> purely as a display name below.
 
 ## 2. Configure
 
@@ -21,9 +34,10 @@ In the target's **Info** tab add:
 
 | Key | Value |
 |---|---|
-| `NSLocationWhenInUseUsageDescription` | "Niko uses your location to answer questions about where you are and link places you review." |
-| `NikoBaseURL` | `https://niko-backend.onrender.com` (or `http://localhost:8000` for dev) |
-| `NikoAPIToken` | the same value as the backend's `API_TOKEN` |
+| `CFBundleDisplayName` | `Ὁδηγός` — the home-screen name under the icon |
+| `NSLocationWhenInUseUsageDescription` | "Ὁδηγός uses your location to answer questions about where you are and to link places you review." |
+| `HodegosBaseURL` | `https://hodegos-backend.onrender.com` (or `http://localhost:8000` for dev) |
+| `HodegosAPIToken` | the same value as the backend's `API_TOKEN` |
 
 For local dev against `http://localhost:8000`, also allow insecure loads for
 localhost (App Transport Security exception) or just use the Render URL.

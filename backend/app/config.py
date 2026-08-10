@@ -6,7 +6,7 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 REPO_DIR = BASE_DIR.parent
 DATA_DIR = Path(os.environ.get("DATA_DIR", BASE_DIR / "data"))
 KNOWLEDGE_DIR = Path(os.environ.get("KNOWLEDGE_DIR", REPO_DIR / "knowledge"))
-DB_PATH = DATA_DIR / "niko.db"
+DB_PATH = DATA_DIR / "hodegos.db"
 CHROMA_PATH = DATA_DIR / "chroma"
 
 # Auth — single-user static bearer token. Generate with: openssl rand -hex 32

@@ -5,12 +5,20 @@ Complete, self-contained spec for building the **Ὁδηγός** iOS client
 picking this up cold. The interactive HTML prototype that these screens were
 designed against is the visual reference; this document is the contract.
 
-**Naming:** Ὁδηγός is the app's user-facing name — set it as the bundle
-**display name** (`CFBundleDisplayName`), which handles the Greek script fine
-under the home-screen icon. The Xcode target, module, bundle identifier, and
-source paths stay ASCII (`Niko`) — non-ASCII product/module names cause
-friction in bundle IDs, schemes, and tooling. The in-app assistant persona is
-still **Niko** — the guide inside Ὁδηγός.
+### Naming — three names, three jobs
+
+Apply these strictly; they are not interchangeable.
+
+| Name | Where it appears | Examples |
+|---|---|---|
+| **Ὁδηγός** | Anywhere the **user reads the app's name** | `CFBundleDisplayName` (home-screen label), permission strings, App Store / TestFlight name, docs |
+| **Hodegos** | **Identifiers** — the Latin transliteration | Xcode target, module, bundle ID (`com.you.hodegos`), `HodegosApp.swift`, `ios/Hodegos/`, Info.plist keys (`HodegosBaseURL`, `HodegosAPIToken`), cache directory |
+| **Niko** | The **in-app assistant persona** only | "Ask Niko", "What Niko's learned", "Tell Niko about it…", the `.niko` chat role, backend system prompts |
+
+Non-ASCII product/module names cause friction in bundle IDs, schemes, and
+command-line tooling, so the Greek script is applied purely as a display name.
+Niko is the guide *inside* Ὁδηγός — never rename the persona to match the app,
+and never use "Niko" for a new identifier.
 
 ---
 
@@ -51,12 +59,12 @@ Working and boring beats clever and late. No third-party dependencies.
 
 ## 3. Existing code (already in the repo)
 
-`ios/Niko/` contains a working first pass of every file below. Treat it as the
-starting point — extend it, don't rewrite it wholesale. Known gaps are marked
-**TODO** throughout this spec.
+`ios/Hodegos/` contains a working first pass of every file below. Treat it as
+the starting point — extend it, don't rewrite it wholesale. Known gaps are
+marked **TODO** throughout this spec.
 
 ```
-NikoApp.swift                 entry point, injects LocationManager
+HodegosApp.swift              entry point, injects LocationManager
 ContentView.swift             TabView, owns cross-tab state (recommendedPlaces, selectedTab)
 Models/Models.swift           Codable models matching the API contract (§6)
 Services/APIClient.swift      async/await client; base URL + token from Info.plist
@@ -71,8 +79,8 @@ Views/JourneyView.swift       segmented Places/Insights, preferences, detail
 
 Xcode project setup steps (create project, reference sources, Info.plist keys,
 signing, TestFlight) are in `ios/README.md`. Required Info.plist keys:
-`NSLocationWhenInUseUsageDescription`, `NikoBaseURL`, `NikoAPIToken`, and
-`CFBundleDisplayName` = `Ὁδηγός` (the home-screen name).
+`NSLocationWhenInUseUsageDescription`, `HodegosBaseURL`, `HodegosAPIToken`,
+and `CFBundleDisplayName` = `Ὁδηγός` (the home-screen name).
 
 ## 4. Information architecture
 
@@ -227,8 +235,8 @@ Niko suggests going (recommendations).
 
 ## 6. API contract
 
-Base URL and static bearer token come from Info.plist (`NikoBaseURL`,
-`NikoAPIToken`). Every request: `Authorization: Bearer <token>`. All bodies
+Base URL and static bearer token come from Info.plist (`HodegosBaseURL`,
+`HodegosAPIToken`). Every request: `Authorization: Bearer <token>`. All bodies
 JSON, snake_case keys (the Codable models in `Models.swift` already map them).
 Timeout 60s — concierge answers with tool calls can take 10–30s; show
 progress, don't time out early.

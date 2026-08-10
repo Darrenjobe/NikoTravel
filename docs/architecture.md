@@ -1,4 +1,7 @@
-# Project Niko — V1 Architecture (Final)
+# Ὁδηγός — V1 Architecture (Final)
+
+App name **Ὁδηγός** (identifiers use the transliteration `Hodegos`); **Niko**
+is the in-app assistant persona.
 
 Single-user deployment for the Greece trip (Sept 5–25). Optimized for: reliable on
 a phone over eSIM data, cheap to run, buildable solo in ~4 weeks, degradable when
@@ -128,8 +131,8 @@ from the phone (pull-to-refresh).
 SwiftUI, iOS 17+, no third-party dependencies. Layout:
 
 ```
-ios/Niko/
-  NikoApp.swift            entry point
+ios/Hodegos/
+  HodegosApp.swift         entry point
   ContentView.swift        TabView (Ask / Journal / Map / Today / Journey)
   Models/Models.swift      Codable API models
   Services/
