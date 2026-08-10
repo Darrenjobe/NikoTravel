@@ -1,16 +1,24 @@
-# Niko iOS App — Build Specification
+# Ὁδηγός iOS App — Build Specification
 
-Complete, self-contained spec for building the Niko iOS client. Written for an
-agent/developer picking this up cold. The interactive HTML prototype that these
-screens were designed against is the visual reference; this document is the
-contract.
+Complete, self-contained spec for building the **Ὁδηγός** iOS client
+(Greek for "guide", pronounced *o-dhi-GOS*). Written for an agent/developer
+picking this up cold. The interactive HTML prototype that these screens were
+designed against is the visual reference; this document is the contract.
+
+**Naming:** Ὁδηγός is the app's user-facing name — set it as the bundle
+**display name** (`CFBundleDisplayName`), which handles the Greek script fine
+under the home-screen icon. The Xcode target, module, bundle identifier, and
+source paths stay ASCII (`Niko`) — non-ASCII product/module names cause
+friction in bundle IDs, schemes, and tooling. The in-app assistant persona is
+still **Niko** — the guide inside Ὁδηγός.
 
 ---
 
 ## 1. Product context
 
-Niko is a personal AI travel concierge for **one user** on a 21-day spiritual &
-historical tour of Greece (**Sept 5–25**). Two core jobs:
+Ὁδηγός is a personal AI travel concierge app for **one user** on a 21-day
+spiritual & historical tour of Greece (**Sept 5–25**). Its assistant persona
+is Niko. Two core jobs:
 
 1. **On-demand concierge** — answer questions about sites, food, transit, and
    hours in the moment, grounded in the user's itinerary and journal (RAG on
@@ -63,7 +71,8 @@ Views/JourneyView.swift       segmented Places/Insights, preferences, detail
 
 Xcode project setup steps (create project, reference sources, Info.plist keys,
 signing, TestFlight) are in `ios/README.md`. Required Info.plist keys:
-`NSLocationWhenInUseUsageDescription`, `NikoBaseURL`, `NikoAPIToken`.
+`NSLocationWhenInUseUsageDescription`, `NikoBaseURL`, `NikoAPIToken`, and
+`CFBundleDisplayName` = `Ὁδηγός` (the home-screen name).
 
 ## 4. Information architecture
 
