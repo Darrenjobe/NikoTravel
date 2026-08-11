@@ -1,0 +1,101 @@
+# Render Blueprint. MUST live at the repository root — Render reads
+# render.yaml from the root, not from a subdirectory.
+#
+# One web service (which owns the persistent disk) plus three cron jobs that
+# call the job endpoints over HTTPS. The cron jobs deliberately do NOT run the
+# app themselves: a Render disk attaches to exactly one service, so a cron job
+# running app code would get its own empty filesystem and write to a different
+# SQLite database. Calling the web service keeps all state in one place.
+#
+# Schedules are UTC. Greece is UTC+3 (EEST) in September.
+services:
+  - type: web
+    name: hodegos-backend
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: . # repo root: the Dockerfile COPYs both backend/ and knowledge/
+    region: frankfurt
+    plan: standard # NOT free — a spun-down instance costs 30-60s on first request
+    healthCheckPath: /healthz
+    disk:
+      name: hodegos-data
+      mountPath: /data # matches DATA_DIR in the Dockerfile
+      sizeGB: 5
+    envVars:
+      - key: API_TOKEN
+        sync: false
+      - key: ANTHROPIC_API_KEY
+        sync: false
+      - key: OPENAI_API_KEY
+        sync: false
+      - key: GOOGLE_PLACES_API_KEY
+        sync: false
+      - key: TAVILY_API_KEY
+        sync: false
+      - key: TRIP_YEAR
+        value: "2026"
+
+  - type: cron
+    name: hodegos-morning
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    schedule: "0 4 * * *" # 07:00 Athens
+    # Folded block scalar: the "Authorization: " colon would otherwise be
+    # parsed as a nested YAML mapping key.
+    dockerCommand: >-
+      sh -c 'curl -fsS --max-time 600 -X POST
+      -H "Authorization: Bearer $API_TOKEN"
+      "https://$BACKEND_HOST/api/jobs/morning"'
+    envVars:
+      - key: API_TOKEN
+        sync: false
+      # Resolved by Render at deploy time. Never hardcode the hostname: if
+      # "hodegos-backend" is already taken globally, Render appends a suffix
+      # and a hardcoded URL would silently fail every night.
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: hodegos-backend
+          property: host
+
+  - type: cron
+    name: hodegos-evening
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    schedule: "0 17 * * *" # 20:00 Athens
+    dockerCommand: >-
+      sh -c 'curl -fsS --max-time 600 -X POST
+      -H "Authorization: Bearer $API_TOKEN"
+      "https://$BACKEND_HOST/api/jobs/evening"'
+    envVars:
+      - key: API_TOKEN
+        sync: false
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: hodegos-backend
+          property: host
+
+  - type: cron
+    name: hodegos-insights
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    schedule: "0 11,20 * * *" # 14:00 + 23:00 Athens
+    dockerCommand: >-
+      sh -c 'curl -fsS --max-time 600 -X POST
+      -H "Authorization: Bearer $API_TOKEN"
+      "https://$BACKEND_HOST/api/jobs/insights"'
+    envVars:
+      - key: API_TOKEN
+        sync: false
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: hodegos-backend
+          property: host

@@ -72,7 +72,7 @@ backend/
       insights.py      Insight digest (conditional: 2+ interactions/24h)
   Dockerfile
   requirements.txt
-  render.yaml          Render blueprint: web service + disk + 3 cron jobs
+  (render.yaml lives at the repo root — Render only reads it from there)
   .env.example
 ```
 

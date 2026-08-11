@@ -105,14 +105,12 @@ If that fails:
 
 ## Deploy (Render)
 
-1. Push this repo to GitHub (already done).
-2. Render dashboard → **New → Blueprint** → point at the repo;
-   `backend/render.yaml` defines the web service, disk, and three cron jobs.
-3. Set the secret env vars when prompted (`API_TOKEN`, `ANTHROPIC_API_KEY`,
-   `GOOGLE_PLACES_API_KEY`, `TAVILY_API_KEY`).
-4. After the first deploy, hit `/api/rebuild-index` once to build the
-   knowledge index (the itinerary ships inside the image; re-run after
-   editing anything in `knowledge/`).
+**Full runbook with verification steps: [`docs/deploy.md`](../docs/deploy.md).**
+
+Short version: `render.yaml` at the **repo root** defines all four services
+(web + three cron). Render dashboard → **New → Blueprint** → pick the repo and
+branch → paste the secrets it prompts for → Apply. Then run
+`POST /api/rebuild-index` once, or every answer will be ungrounded.
 
 ## Degradation behavior
 
