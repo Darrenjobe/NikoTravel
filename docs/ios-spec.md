@@ -82,6 +82,13 @@ signing, TestFlight) are in `ios/README.md`. Required Info.plist keys:
 `NSLocationWhenInUseUsageDescription`, `HodegosBaseURL`, `HodegosAPIToken`,
 and `CFBundleDisplayName` = `Ὁδηγός` (the home-screen name).
 
+When developing against a backend running on the Mac rather than Render, two
+**dev-only** keys are also required — `NSAllowsLocalNetworking` (ATS blocks
+plaintext HTTP) and `NSLocalNetworkUsageDescription` (iOS 14+ gates local
+network access, and fails silently without it). Point `HodegosBaseURL` at the
+Mac's `.local` Bonjour name, not its IP. Details in `ios/README.md`; strip
+both keys before shipping against the HTTPS Render URL.
+
 ## 4. Information architecture
 
 Five tabs. Ask is the default. Tab identity matters — each has a distinct job

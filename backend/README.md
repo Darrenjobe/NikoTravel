@@ -62,6 +62,47 @@ curl -X POST -H "Authorization: Bearer $TOKEN" localhost:8000/api/jobs/morning
 curl -H "Authorization: Bearer $TOKEN" localhost:8000/api/today
 ```
 
+## Testing from your phone (same Wi-Fi)
+
+`127.0.0.1` is loopback — only the Mac itself can reach it. Bind to all
+interfaces instead:
+
+```bash
+uvicorn app.main:app --reload --host 0.0.0.0 --port 8000
+```
+
+Find how the phone should address the Mac:
+
+```bash
+ipconfig getifaddr en0        # Wi-Fi IP, e.g. 192.168.1.42
+scutil --get LocalHostName    # Bonjour name, e.g. Johns-MacBook-Pro
+```
+
+**Prefer the Bonjour name** (`http://Johns-MacBook-Pro.local:8000`) over the
+raw IP: DHCP reassigns the IP whenever you rejoin the network, and the `.local`
+name keeps working. It also satisfies iOS App Transport Security more cleanly
+(see `ios/README.md`).
+
+Verify from the phone's browser **before** touching the app — this separates
+network problems from app problems. `/healthz` needs no token:
+
+```
+http://Johns-MacBook-Pro.local:8000/healthz   →   {"ok":true}
+```
+
+If that fails:
+
+- **macOS firewall** — System Settings → Network → Firewall. If it's on,
+  allow incoming connections for Python when prompted (the dialog can appear
+  behind other windows).
+- **Same network?** The phone must be on the same Wi-Fi, not cellular.
+- **Client isolation** — many guest/public networks block device-to-device
+  traffic entirely. Use a home network or a personal hotspot.
+
+> ⚠️ `--host 0.0.0.0` exposes the API to everyone on that network. It's bearer
+> token–protected, but don't run it that way on café or hotel Wi-Fi — keep it
+> to your home network, or deploy to Render and use the real URL.
+
 ## Deploy (Render)
 
 1. Push this repo to GitHub (already done).
