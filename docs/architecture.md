@@ -111,6 +111,31 @@ backend/
 | morning | `0 4 * * *` (7am EEST) | Looks up today's region, researches each planned site (Tavily), writes the Morning Guide to SQLite |
 | evening | `0 17 * * *` (8pm EEST) | Compiles the day's journal summaries into the Evening Recap |
 | insights | `0 11,20 * * *` | If 2+ interactions in trailing 24h: analyze archive window, emit insight cards |
+| summarize | on demand | Titles for the conversation history. Normally runs as a background task scheduled by `GET /api/conversations`, so no cron service is needed; `POST /api/jobs/summarize` forces it |
+
+### Conversation threading
+
+`POST /api/chat` without a `conversation_id` opens a thread and returns its id;
+sending that id back continues the thread. Prior turns are replayed to the
+model, so follow-ups ("what about tomorrow?") resolve against what was already
+said — before this, every message was answered in isolation.
+
+Journal threads reuse the entry id as the thread id, so one entry is a journal
+record and a conversation from two angles with no extra state. Both kinds
+surface in `GET /api/conversations`.
+
+Summaries are generated once a thread has been quiet for 10 minutes, not after
+every message. Until then the list shows the first user message, trimmed — so
+a title is always present, and `summary_is_ai` tells the client which it is.
+
+### Ambient context injection
+
+Every chat request builds a context block (`services/context.py`) from the
+client's `timestamp` and GPS plus server-side state: local time and trip day,
+current region, today's planned sites and dining options from the itinerary, a
+heads-up when tomorrow changes region, learned preferences, and recent journal
+verdicts. The system prompt states the traveler should never be asked for any
+of it.
 
 Cron jobs are thin `curl` calls to `POST /api/jobs/{name}` with the bearer
 token, so job code lives in the same deploy and can also be triggered manually
@@ -157,12 +182,18 @@ All routes require `Authorization: Bearer <API_TOKEN>`.
 
 | Route | Body → Response |
 |---|---|
-| `POST /api/chat` | `{message, lat?, lon?, memory_mode}` → `{reply, places[], sources[]}` |
+| `POST /api/chat` | `{message, lat?, lon?, memory_mode, timestamp?, conversation_id?}` → `{reply, places[], sources[], conversation_id}` |
+| `GET /api/conversations?type=ask\|journal` | → `{conversations[]}` (unified Ask + Journal feed) |
+| `GET /api/conversations/{id}` | → thread metadata + `messages[]` |
+| `GET /api/journal/{entry_id}/transcript` | → `{entry_id, place_name, messages[]}` |
+| `DELETE /api/journal/{entry_id}` | discard a draft (409 if already filed) |
+| `GET /api/itinerary?days=&start=` | → `{days[]}` with stops + dining per day |
+| `GET /api/events?lat=&lon=&radius_km=` | → `{events[]}` (12h cached per region) |
 | `POST /api/journal/start` | `{maps_link?}` → `{entry_id, reply}` |
 | `POST /api/journal/message` | `{entry_id, message, lat?, lon?}` → `{reply, candidate?}` |
 | `POST /api/journal/confirm` | `{entry_id, accepted}` → `{reply}` |
 | `POST /api/journal/finish` | `{entry_id}` → `{entry}` (full stored entry) |
-| `GET /api/today` | → `{trip_day, region, morning_guide?, evening_recap?}` |
+| `GET /api/today` | → `{trip_day, region, morning_guide?, evening_recap?, upcoming[]}` |
 | `GET /api/places` | → `{entries[], preferences}` |
 | `GET /api/insights` | → `{insights[]}` |
 | `GET /api/map/pins` | → `{pins[]}` (journal places with coords) |

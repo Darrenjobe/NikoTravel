@@ -250,7 +250,13 @@ progress, don't time out early.
 
 | Endpoint | Request → Response |
 |---|---|
-| `POST /api/chat` | `{message, lat?, lon?, memory_mode}` → `{reply, places[], sources[]}` |
+| `POST /api/chat` | `{message, lat?, lon?, memory_mode, timestamp?, conversation_id?}` → `{reply, places[], sources[], conversation_id}` |
+| `GET /api/conversations?type=` | → `{conversations[]}` — unified Ask + Journal history; `type` is `ask` or `journal` |
+| `GET /api/conversations/{id}` | → thread metadata + full `messages[]` |
+| `GET /api/journal/{entry_id}/transcript` | → `{entry_id, place_name, messages[]}` |
+| `DELETE /api/journal/{entry_id}` | discard a draft entry (409 if already filed) |
+| `GET /api/itinerary?days=&start=` | → `{days[]}`, each with `stops[]` and `dining[]` |
+| `GET /api/events?lat=&lon=&radius_km=` | → `{events[]}` near the traveler |
 | `POST /api/journal/start` | `{maps_link?}` → `{entry_id, reply}` |
 | `POST /api/journal/message` | `{entry_id, message, lat?, lon?}` → `{reply, candidate?}` |
 | `POST /api/journal/confirm` | `{entry_id, accepted}` → `{reply}` |
@@ -259,6 +265,17 @@ progress, don't time out early.
 | `GET /api/places` | → `{entries[], preferences{likes[], dislikes[]}}` |
 | `GET /api/insights` | → `{insights[]}` |
 | `GET /api/map/pins` | → `{pins[]}` |
+
+**Threading (Ask):** send `timestamp` (ISO 8601, with offset) and, once you
+have one, `conversation_id` on every chat request. Omitting the id starts a new
+thread; the response always returns the id to persist for that screen. Keeping
+it is what makes follow-up questions work — the server replays prior turns to
+the model. Start a fresh thread by dropping the id.
+
+**Conversation list items** carry `summary` (always populated — AI-generated
+once the thread goes quiet, otherwise the trimmed first message),
+`summary_is_ai` to distinguish them, `type`, `message_count`, and `place_name`
+for journal threads.
 
 Key shapes (full definitions in `Models.swift`):
 

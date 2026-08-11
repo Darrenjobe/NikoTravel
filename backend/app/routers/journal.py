@@ -81,8 +81,12 @@ def start(req: StartRequest):
             "INSERT INTO journal_entries (id, created_at, maps_url) VALUES (?,?,?)",
             (entry_id, db.now(), req.maps_link),
         )
+    # A journal thread reuses the entry id, so the conversation feed and the
+    # journal entry are the same object from two angles — no extra state.
+    archive.ensure_thread(entry_id, kind="journal", entry_id=entry_id)
     reply = "How was it? Tell me about somewhere you just went — a meal, a monastery, a museum, anything."
     _append(entry_id, "assistant", reply)
+    archive.record_turn("journal", "assistant", reply, thread_id=entry_id)
     return {"entry_id": entry_id, "reply": reply}
 
 
@@ -90,7 +94,7 @@ def start(req: StartRequest):
 def message(req: MessageRequest):
     entry = _get(req.entry_id)
     _append(req.entry_id, "user", req.message)
-    archive.record_turn("journal", "user", req.message)
+    archive.record_turn("journal", "user", req.message, thread_id=req.entry_id)
 
     candidate = None
     # First user message with no place attached → try to resolve one.
@@ -117,7 +121,7 @@ def message(req: MessageRequest):
         max_tokens=300,
     )
     _append(req.entry_id, "assistant", reply)
-    archive.record_turn("journal", "assistant", reply)
+    archive.record_turn("journal", "assistant", reply, thread_id=req.entry_id)
     return {"reply": reply, "candidate": None}
 
 
@@ -189,3 +193,43 @@ def finish(req: FinishRequest):
     final = _get(req.entry_id)
     archive.record_entry(final)
     return {"entry": final}
+
+
+@router.get("/api/journal/{entry_id}/transcript")
+def transcript(entry_id: str):
+    """The full back-and-forth that produced an entry — not just the summary.
+
+    The stored transcript is authoritative (it includes Niko's opener). The
+    internal 'candidate' rows are place-resolution bookkeeping, not dialogue,
+    so they're filtered out.
+    """
+    entry = _get(entry_id)
+    return {
+        "entry_id": entry_id,
+        "place_name": entry["place_name"],
+        "status": entry["status"],
+        "messages": [
+            {"role": t["role"], "text": t["text"]}
+            for t in entry["transcript"]
+            if t["role"] in ("user", "assistant")
+        ],
+    }
+
+
+@router.delete("/api/journal/{entry_id}")
+def discard(entry_id: str):
+    """Discard an in-progress entry (the client's 'Discard' button).
+
+    Refuses to delete a finished entry — those are the trip's record and
+    should go through a deliberate delete, not an accidental one.
+    """
+    entry = _get(entry_id)
+    if entry["status"] == "done":
+        raise HTTPException(
+            409, "entry is already filed; discard only applies to drafts"
+        )
+    with db.conn() as c:
+        c.execute("DELETE FROM journal_entries WHERE id=?", (entry_id,))
+        c.execute("DELETE FROM conversations WHERE thread_id=?", (entry_id,))
+        c.execute("DELETE FROM threads WHERE id=?", (entry_id,))
+    return {"discarded": entry_id}

@@ -3,12 +3,17 @@ from __future__ import annotations
 
 from fastapi import APIRouter, HTTPException
 
-from app.jobs import evening, insights, morning
+from app.jobs import evening, insights, morning, summarize
 from app.services import rag
 
 router = APIRouter()
 
-JOBS = {"morning": morning.run, "evening": evening.run, "insights": insights.run}
+JOBS = {
+    "morning": morning.run,
+    "evening": evening.run,
+    "insights": insights.run,
+    "summarize": summarize.run,
+}
 
 
 @router.post("/api/rebuild-index")
