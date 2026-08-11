@@ -2,16 +2,36 @@
 
 FastAPI + SQLite + ChromaDB. See `docs/architecture.md` for the design.
 
+## Requirements
+
+**Python 3.11+ — 3.12 recommended** (production runs `python:3.12-slim`).
+
+⚠️ **macOS:** the Command Line Tools ship Python **3.9**, which is too old —
+`python3 -m venv` picks it up by default and the app fails at import with a
+confusing Pydantic error (`Unable to evaluate type annotation 'float | None'`).
+The annotations are fine; PEP 604 unions just need 3.10+. Install a newer
+interpreter and build the venv from it explicitly:
+
+```bash
+brew install python@3.12
+python3.12 --version          # confirm it's on PATH
+```
+
 ## Local dev
 
 ```bash
 cd backend
-python -m venv .venv && source .venv/bin/activate
+python3.12 -m venv .venv      # be explicit; don't rely on `python3`
+source .venv/bin/activate
+python --version              # must be 3.11+ before continuing
 pip install -r requirements.txt
-cp .env.example .env        # fill in keys
+cp .env.example .env          # fill in keys
 set -a; source .env; set +a
 uvicorn app.main:app --reload
 ```
+
+`app/__init__.py` enforces the minimum version, so a wrong interpreter fails
+immediately with instructions rather than a misleading traceback.
 
 First run:
 
