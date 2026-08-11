@@ -5,6 +5,8 @@ prompts and user-facing assistant copy, never as an identifier.
 """
 from __future__ import annotations
 
+import logging
+import os
 import secrets
 
 from fastapi import Depends, FastAPI, HTTPException, Request
@@ -13,10 +15,17 @@ from app import config
 from app.routers import admin, chat, journal, journey, map as map_router, today
 from app.storage import db
 
+log = logging.getLogger("hodegos")
+
 
 async def require_token(request: Request) -> None:
     if not config.API_TOKEN:
-        raise HTTPException(503, "API_TOKEN is not configured on the server")
+        raise HTTPException(
+            503,
+            "API_TOKEN is not set in the server's environment. Put it in "
+            "backend/.env (generate one with `openssl rand -hex 32`) and "
+            "restart uvicorn — see the startup log for what the server loaded.",
+        )
     auth = request.headers.get("authorization", "")
     token = auth.removeprefix("Bearer ").strip()
     if not secrets.compare_digest(token, config.API_TOKEN):
@@ -38,3 +47,25 @@ def healthz():
 @app.on_event("startup")
 def startup() -> None:
     db.init()
+    _log_config()
+
+
+def _log_config() -> None:
+    """Print what the server actually loaded, so a misconfigured start is
+    obvious in the console instead of surfacing later as a confusing 503.
+    Booleans only — never log secret values."""
+    env_file = config.BASE_DIR / ".env"
+    checks = [
+        ("API_TOKEN", bool(config.API_TOKEN)),
+        ("ANTHROPIC_API_KEY", bool(os.environ.get("ANTHROPIC_API_KEY"))),
+        ("GOOGLE_PLACES_API_KEY", bool(config.GOOGLE_PLACES_API_KEY)),
+        ("TAVILY_API_KEY", bool(config.TAVILY_API_KEY)),
+    ]
+    log.warning("Ὁδηγός config — .env %s at %s",
+                "found" if env_file.is_file() else "NOT FOUND", env_file)
+    for name, present in checks:
+        log.warning("  %s %s", "✓" if present else "✗", name)
+    if not config.API_TOKEN:
+        log.warning(
+            "  → API_TOKEN missing: every authenticated route will return 503. "
+            "Add it to %s and restart.", env_file)

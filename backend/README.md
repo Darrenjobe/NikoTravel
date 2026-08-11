@@ -25,18 +25,38 @@ python3.12 -m venv .venv      # be explicit; don't rely on `python3`
 source .venv/bin/activate
 python --version              # must be 3.11+ before continuing
 pip install -r requirements.txt
-cp .env.example .env          # fill in keys
-set -a; source .env; set +a
+
+cp .env.example .env
+openssl rand -hex 32          # paste as API_TOKEN=... in .env, then add your keys
+
 uvicorn app.main:app --reload
 ```
 
-`app/__init__.py` enforces the minimum version, so a wrong interpreter fails
-immediately with instructions rather than a misleading traceback.
+`backend/.env` is loaded automatically at import — you do **not** need to
+`source` it, and it works from any terminal tab. Real environment variables
+always take precedence, so Render's dashboard config is never shadowed.
+
+On startup the server logs exactly what it loaded:
+
+```
+Ὁδηγός config — .env found at /path/to/backend/.env
+  ✓ API_TOKEN
+  ✓ ANTHROPIC_API_KEY
+  ✗ GOOGLE_PLACES_API_KEY
+  ✗ TAVILY_API_KEY
+```
+
+If a route returns **503 "API_TOKEN is not set"**, check that line: either
+`.env` wasn't found where the server looked, or `API_TOKEN` is blank in it.
+`app/__init__.py` separately enforces the Python minimum, so a wrong
+interpreter fails immediately with instructions rather than a misleading
+Pydantic traceback.
 
 First run:
 
 ```bash
-TOKEN=$(grep API_TOKEN .env | cut -d= -f2)
+# -f2- (not -f2) so a token containing '=' isn't truncated
+TOKEN=$(grep '^API_TOKEN=' .env | cut -d= -f2-)
 curl -X POST -H "Authorization: Bearer $TOKEN" localhost:8000/api/rebuild-index
 curl -X POST -H "Authorization: Bearer $TOKEN" localhost:8000/api/jobs/morning
 curl -H "Authorization: Bearer $TOKEN" localhost:8000/api/today
