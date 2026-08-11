@@ -29,6 +29,24 @@ async def require_token(request: Request) -> None:
     auth = request.headers.get("authorization", "")
     token = auth.removeprefix("Bearer ").strip()
     if not secrets.compare_digest(token, config.API_TOKEN):
+        # Diagnose in the server console only. The 401 body stays generic so
+        # nothing about the expected token leaks to the network.
+        if not auth:
+            reason = "no Authorization header was sent"
+        elif not auth.startswith("Bearer "):
+            reason = f"header is not 'Bearer <token>' (got {auth.split(' ')[0]!r})"
+        elif not token:
+            reason = (
+                "the Bearer token is empty — HodegosAPIToken is probably "
+                "missing from the app's Info.plist"
+            )
+        else:
+            reason = (
+                f"token mismatch: client sent {len(token)} chars, "
+                f"server expects {len(config.API_TOKEN)}"
+            )
+        log.warning("401 from %s — %s",
+                    request.client.host if request.client else "unknown", reason)
         raise HTTPException(401, "invalid token")
 
 
