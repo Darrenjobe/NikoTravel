@@ -6,3 +6,4 @@ backend/data/
 .DS_Store
 xcuserdata/
 *.xcodeproj
+ios/Hodegos/Info.plist

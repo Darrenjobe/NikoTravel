@@ -1,3 +1,4 @@
+import CoreLocation
 import SwiftUI
 
 struct AskView: View {
@@ -9,6 +10,7 @@ struct AskView: View {
     @State private var input = ""
     @State private var memoryMode = false
     @State private var isThinking = false
+    @FocusState private var inputFocused: Bool
 
     private let starters = [
         "What happened at the Areopagus?",
@@ -75,6 +77,7 @@ struct AskView: View {
                 }
                 .padding()
             }
+            .scrollDismissesKeyboard(.interactively)
             .onChange(of: messages.count) {
                 if let last = messages.last { proxy.scrollTo(last.id, anchor: .bottom) }
             }
@@ -105,7 +108,14 @@ struct AskView: View {
             // custom speech code needed for V1.
             TextField(memoryMode ? "Ask about your trip so far…" : "Ask Niko…", text: $input, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
+                .focused($inputFocused)
                 .onSubmit { send(input) }
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { inputFocused = false }
+                    }
+                }
             Button {
                 send(input)
             } label: {
