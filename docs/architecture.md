@@ -169,6 +169,54 @@ All routes require `Authorization: Bearer <API_TOKEN>`.
 | `POST /api/jobs/{morning\|evening\|insights}` | → job result |
 | `POST /api/rebuild-index` | → re-index knowledge/ into ChromaDB |
 
+## Hosting choice — why Render/Frankfurt, and why region barely matters
+
+**Decision: keep Render, `region: frankfurt`.** Already in `render.yaml`.
+
+The instinct is to minimize physical distance to Greece. But the network hop
+to the host is a rounding error next to LLM inference. Rough round-trip times
+from a Greek mobile network, versus what a concierge answer actually costs:
+
+| Leg | Approx. time |
+|---|---|
+| Phone → Frankfurt | ~40–60 ms |
+| Phone → Milan / Ireland | ~45–80 ms |
+| Phone → US East | ~130–180 ms |
+| **LLM inference for one grounded answer (with tool calls)** | **5,000–25,000 ms** |
+
+Even the worst geography adds ~120 ms to a ~15 s request — under 1%. Choosing
+a host by map distance optimizes the wrong term. Frankfurt is picked because
+it's a well-peered hub that Greek carriers route through anyway, not because
+those milliseconds are decisive.
+
+**What actually determines whether this feels fast on the ground:**
+
+1. **No cold starts.** A spun-down instance costs 30–60 s on the first
+   request — worse than every geography decision combined. The blueprint uses
+   `plan: standard` for exactly this reason. Do **not** downgrade to a
+   free/spin-down tier before the trip.
+2. **Model and effort on the chat path.** This is the real latency dial. If
+   answers feel slow, drop `CHAT_MODEL` to `claude-haiku-4-5`, or lower
+   `effort` — both are env vars, changeable from the Render dashboard mid-trip
+   without a redeploy.
+3. **Streaming the reply** (not yet implemented). The largest perceived-speed
+   win available: first tokens in ~1–2 s instead of a blank screen for 15 s.
+   Worth doing in week 3 if time allows.
+4. **Generous client timeouts.** The iOS client uses 60 s; a tool-using answer
+   on a weak signal can legitimately take 20–30 s. Verify long requests
+   survive the platform's own proxy timeout before departure.
+
+**Alternatives considered:** Fly.io (cheaper, closer edge regions, but
+CLI-heavy and volumes are region-pinned), Hetzner (far cheaper, but you own
+nginx/TLS/systemd/backups — wrong risk profile weeks before a trip), Azure
+Greece Central (nominally closest, disproportionate setup). None of them buy
+enough to justify re-plumbing a working deploy.
+
+**The real Greece risks are not latency:** Mt Athos has no signal at all
+(handled by offline caching, §Offline strategy), ferries drop connectivity
+mid-crossing, and roaming data caps make response size worth watching. Those
+are client-side problems, not hosting ones.
+
 ## Cost estimate (trip month)
 
 | Item | Est. |
