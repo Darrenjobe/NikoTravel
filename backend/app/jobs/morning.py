@@ -4,7 +4,7 @@ from __future__ import annotations
 import json
 
 from app import config
-from app.services import llm, search, tripday
+from app.services import llm, search, settings, tripday
 from app.storage import db
 
 GUIDE_SCHEMA = {
@@ -41,7 +41,7 @@ def run() -> dict:
         f"opening hours and visitor tips this week: top sites in {ctx['region']}, Greece"
     )
     guide = llm.get_llm().extract_json(
-        model=config.JOB_MODEL,
+        model=settings.job_model(),
         system=(
             "You are Niko, writing a morning travel guide for one traveler on a "
             "spiritual & historical tour of Greece. Pick the 3-4 best stops for "

@@ -169,6 +169,41 @@ curl -X POST -H "Authorization: Bearer $TOKEN" \
   'localhost:8000/api/jobs/insights?force=true'
 ```
 
+## Switching models without a redeploy
+
+`CHAT_MODEL` and `JOB_MODEL` in `.env` are the defaults. The app can override
+them at runtime — useful on the ground when API spend looks higher than
+expected, or when a question deserves a bigger model:
+
+```bash
+TOKEN=$(grep '^API_TOKEN=' .env | cut -d= -f2-)
+H="Authorization: Bearer $TOKEN"
+
+curl -s -H "$H" localhost:8000/api/models              # what's available
+curl -s -H "$H" 'localhost:8000/api/models?refresh=true'   # skip the 24h cache
+
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' \
+  -d '{"chat_model":"claude-haiku-4-5"}' localhost:8000/api/models
+
+curl -s -X DELETE -H "$H" localhost:8000/api/models    # back to the .env defaults
+```
+
+Chat and jobs are set independently — the concierge is latency-sensitive on
+the ground, the overnight jobs are not. The override lives in SQLite, so it
+survives restarts and redeploys; `DELETE` removes it and the env var applies
+again.
+
+The catalog comes from Anthropic's Models API and is cached for 24 hours. The
+response's `source` field says where the list came from — `live`, `cache`,
+`stale-cache` (refresh failed, serving the last good copy), or `fallback` (no
+key or no connection, showing a small built-in list). Models that can't do
+structured outputs are hidden, because journal extraction needs them; add
+`?all=true` to see them and why they were excluded.
+
+**Pricing is not in the response** — the Models API doesn't return it, and
+hardcoding rates would go stale silently. Check current pricing on Anthropic's
+pricing page.
+
 ## Testing from your phone (same Wi-Fi)
 
 `127.0.0.1` is loopback — only the Mac itself can reach it. Bind to all

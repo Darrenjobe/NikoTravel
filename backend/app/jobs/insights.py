@@ -6,7 +6,7 @@ matching the product rule: no activity, no digest.
 from __future__ import annotations
 
 from app import config
-from app.services import archive, llm, tripday
+from app.services import archive, llm, settings, tripday
 from app.storage import db
 
 INSIGHTS_SCHEMA = {
@@ -52,7 +52,7 @@ def run(hours: int = 24, force: bool = False) -> dict:
         # Forcing past the threshold still can't invent material to analyze.
         return {"skipped": f"no interactions recorded in the last {hours}h"}
     result = llm.get_llm().extract_json(
-        model=config.JOB_MODEL,
+        model=settings.job_model(),
         system=(
             "You analyze one traveler's day of interactions (questions to their "
             "concierge, journal entries, conversations) and surface 2-4 genuinely "

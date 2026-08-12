@@ -13,7 +13,7 @@ from fastapi import APIRouter
 from pydantic import BaseModel
 
 from app import config
-from app.services import archive, context, llm, places, rag, search, tripday
+from app.services import archive, context, llm, places, rag, search, settings, tripday
 
 router = APIRouter()
 
@@ -116,7 +116,7 @@ def chat(req: ChatRequest):
     ]
 
     result = llm.get_llm().chat_with_tools(
-        model=config.CHAT_MODEL,
+        model=settings.chat_model(),
         system=system,
         messages=messages,
         tools=[] if req.memory_mode else TOOLS,

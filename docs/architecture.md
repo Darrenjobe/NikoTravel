@@ -57,6 +57,7 @@ backend/
       journey.py       GET  /api/places, /api/insights
       map.py           GET  /api/map/pins, /api/places/search
       saved.py         GET/POST /api/saved, DELETE /api/saved/{place_id}
+      models.py        GET/POST/DELETE /api/models (in-app model switching)
       admin.py         POST /api/rebuild-index, POST /api/jobs/{name}
     services/
       llm.py           LLM interface; AnthropicLLM (default) / OpenAILLM
@@ -64,6 +65,8 @@ backend/
       places.py        Google Places text search + place details
       search.py        Tavily web search
       tripday.py       date → trip-day/region mapping from the itinerary
+      settings.py      runtime overrides for env config (model selection)
+      models.py        Anthropic Models API catalog, cached 24h in SQLite
       archive.py       stores every conversation turn (chat + journal)
     storage/
       db.py            SQLite schema + helpers
@@ -202,6 +205,10 @@ All routes require `Authorization: Bearer <API_TOKEN>`.
 | `GET /api/saved` | → `{places[]}` hearted on the Map tab, newest first |
 | `POST /api/saved` | a place object → `{ok, saved: true}` (idempotent) |
 | `DELETE /api/saved/{place_id}` | → `{ok, saved: false}` (no-op if absent) |
+| `GET /api/models?refresh=&all=` | → `{models[], source, chat_model, job_model}` (24h cache) |
+| `GET /api/models/current` | → the selection only, no network call |
+| `POST /api/models` | `{chat_model?, job_model?}` → persists the choice |
+| `DELETE /api/models` | reset to the `CHAT_MODEL`/`JOB_MODEL` env defaults |
 | `POST /api/jobs/{morning\|evening\|insights}` | → job result |
 | `POST /api/rebuild-index` | → re-index knowledge/ into ChromaDB |
 

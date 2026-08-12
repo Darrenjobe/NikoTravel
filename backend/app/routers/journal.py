@@ -7,7 +7,7 @@ from fastapi import APIRouter, HTTPException
 from pydantic import BaseModel
 
 from app import config
-from app.services import archive, llm, places
+from app.services import archive, llm, places, settings
 from app.storage import db
 
 router = APIRouter()
@@ -115,7 +115,7 @@ def message(req: MessageRequest):
         f"{t['role']}: {t['text']}" for t in transcript if t["role"] in ("user", "assistant")
     )
     reply = llm.get_llm().complete(
-        model=config.CHAT_MODEL,
+        model=settings.chat_model(),
         system=INTERVIEW_SYSTEM.format(place=place),
         prompt=f"Conversation so far:\n{convo}\n\nWrite your next reply.",
         max_tokens=300,
@@ -167,7 +167,7 @@ def finish(req: FinishRequest):
         if t["role"] in ("user", "assistant")
     )
     extracted = llm.get_llm().extract_json(
-        model=config.JOB_MODEL,
+        model=settings.job_model(),
         system="Extract structured feedback from this travel journal conversation.",
         prompt=convo,
         schema=EXTRACTION_SCHEMA,

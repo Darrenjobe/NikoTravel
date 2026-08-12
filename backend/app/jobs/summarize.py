@@ -9,7 +9,7 @@ from __future__ import annotations
 import logging
 
 from app import config
-from app.services import archive, llm
+from app.services import archive, llm, settings
 from app.storage import db
 
 log = logging.getLogger("hodegos")
@@ -53,7 +53,7 @@ def summarize_thread(thread_id: str, kind: str) -> str | None:
     transcript = "\n".join(f"{m['role']}: {m['text']}" for m in messages)
     try:
         summary = llm.get_llm().complete(
-            model=config.JOB_MODEL,
+            model=settings.job_model(),
             system=JOURNAL_PROMPT if kind == "journal" else ASK_PROMPT,
             prompt=transcript[:20000],
             max_tokens=150,

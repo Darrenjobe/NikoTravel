@@ -13,7 +13,7 @@ import json
 import logging
 
 from app import config
-from app.services import llm, search, tripday
+from app.services import llm, search, settings, tripday
 from app.storage import db
 
 log = logging.getLogger("hodegos")
@@ -103,7 +103,7 @@ def nearby(
     )
     try:
         parsed = llm.get_llm().extract_json(
-            model=config.JOB_MODEL,
+            model=settings.job_model(),
             system=SYSTEM,
             prompt=f"Traveler is near {where}. Today is {day}.\n\n{results}",
             schema=EVENTS_SCHEMA,

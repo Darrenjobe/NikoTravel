@@ -47,6 +47,15 @@ CREATE TABLE IF NOT EXISTS threads (
     entry_id TEXT                               -- journal threads -> journal_entries.id
 );
 
+-- Runtime settings that outlive a restart, so the phone can change them
+-- without a redeploy. Currently the chat/job model selection and the cached
+-- model catalog; updated_at doubles as the catalog's cache timestamp.
+CREATE TABLE IF NOT EXISTS settings (
+    key TEXT PRIMARY KEY,
+    value TEXT NOT NULL,
+    updated_at REAL NOT NULL
+);
+
 -- Places hearted on the Map tab. The whole Google payload is denormalized here
 -- on purpose: saved pins then render straight from SQLite with no Places call,
 -- which is what makes them survive the Mt Athos leg (Sept 20-23, no data).

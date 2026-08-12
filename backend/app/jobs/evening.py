@@ -6,7 +6,7 @@ import json
 import zoneinfo
 
 from app import config
-from app.services import llm, tripday
+from app.services import llm, settings, tripday
 from app.storage import db
 
 
@@ -27,7 +27,7 @@ def run() -> dict:
         return {"skipped": "no journal entries today"}
 
     narrative = llm.get_llm().complete(
-        model=config.JOB_MODEL,
+        model=settings.job_model(),
         system="Write a warm 2-3 sentence recap of this traveler's day from their journal summaries.",
         prompt=json.dumps(entries),
         max_tokens=400,
