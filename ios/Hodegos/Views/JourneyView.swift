@@ -11,11 +11,14 @@ struct JourneyView: View {
                 Picker("Section", selection: $section) {
                     Text("Places").tag(0)
                     Text("Insights").tag(1)
+                    Text("History").tag(2)
                 }
                 .pickerStyle(.segmented)
                 .padding(.horizontal)
 
-                if section == 0 { placesList } else { insightsList }
+                if section == 0 { placesList }
+                else if section == 1 { insightsList }
+                else { HistoryListView() }
             }
             .tint(.hodAegean)
             .background(Color.hodPaper)

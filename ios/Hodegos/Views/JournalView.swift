@@ -171,6 +171,9 @@ struct JournalView: View {
     }
 
     private func resetState() {
+        if let id = entryId {
+            Task { try? await APIClient.shared.journalDiscard(entryId: id) }
+        }
         entryId = nil
         messages = []
         confirmedPlace = nil

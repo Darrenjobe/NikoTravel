@@ -1,12 +1,11 @@
 import Foundation
 
-/// Thin async client for the Ὁδηγός backend. Configure the base URL and token
-/// in Info.plist (see ios/README.md) or edit the defaults below for dev.
 enum APIConfig {
-    static var baseURL: URL {
-        if let s = Bundle.main.object(forInfoDictionaryKey: "HodegosBaseURL") as? String,
-           let url = URL(string: s) { return url }
-        return URL(string: "http://192.168.68.62:8000")!
+    static var baseURL: String {
+        if let s = Bundle.main.object(forInfoDictionaryKey: "HodegosBaseURL") as? String {
+            return s.hasSuffix("/") ? String(s.dropLast()) : s
+        }
+        return "http://192.168.68.66:8000"
     }
 
     static var token: String {
@@ -29,10 +28,14 @@ enum APIError: LocalizedError {
 struct APIClient {
     static let shared = APIClient()
 
+    private func url(_ path: String) -> URL {
+        URL(string: APIConfig.baseURL + path)!
+    }
+
     private func request<Body: Encodable, Response: Decodable>(
         _ path: String, method: String = "GET", body: Body? = nil
     ) async throws -> Response {
-        var req = URLRequest(url: APIConfig.baseURL.appendingPathComponent(path))
+        var req = URLRequest(url: url(path))
         req.httpMethod = method
         req.timeoutInterval = 60
         req.setValue("Bearer \(APIConfig.token)", forHTTPHeaderField: "Authorization")
@@ -52,21 +55,38 @@ struct APIClient {
         return try JSONDecoder().decode(Response.self, from: data)
     }
 
+    private func delete(_ path: String) async throws {
+        var req = URLRequest(url: url(path))
+        req.httpMethod = "DELETE"
+        req.timeoutInterval = 60
+        req.setValue("Bearer \(APIConfig.token)", forHTTPHeaderField: "Authorization")
+        let (_, response): (Data, URLResponse)
+        do {
+            (_, response) = try await URLSession.shared.data(for: req)
+        } catch {
+            throw APIError.offline
+        }
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw APIError.server((response as? HTTPURLResponse)?.statusCode ?? 0)
+        }
+    }
+
     private struct Empty: Codable {}
 
     private func get<Response: Decodable>(_ path: String) async throws -> Response {
         try await request(path, body: Optional<Empty>.none)
     }
 
-    // MARK: - Endpoints
+    // MARK: - Chat
 
     func chat(_ body: ChatRequest) async throws -> ChatResponse {
         try await request("/api/chat", method: "POST", body: body)
     }
 
+    // MARK: - Journal
+
     func journalStart(mapsLink: String?) async throws -> JournalStartResponse {
         struct Body: Codable { let maps_link: String? }
-        //return try await request("/api/journal/start", method: "POST", body: Body(maps_link: mapsLink))
         return try await request("/api/journal/start", method: "POST", body: Body(maps_link: mapsLink))
     }
 
@@ -87,8 +107,36 @@ struct APIClient {
         return try await request("/api/journal/finish", method: "POST", body: Body(entry_id: entryId))
     }
 
+    func journalDiscard(entryId: String) async throws {
+        try await delete("/api/journal/\(entryId)")
+    }
+
+    func journalTranscript(entryId: String) async throws -> ConversationDetail {
+        try await get("/api/journal/\(entryId)/transcript")
+    }
+
+    // MARK: - Today / Journey / Map
+
     func today() async throws -> TodayResponse { try await get("/api/today") }
     func places() async throws -> PlacesResponse { try await get("/api/places") }
     func insights() async throws -> InsightsResponse { try await get("/api/insights") }
     func mapPins() async throws -> PinsResponse { try await get("/api/map/pins") }
+    func itinerary() async throws -> ItineraryResponse { try await get("/api/itinerary") }
+
+    func events(lat: Double?, lon: Double?) async throws -> EventsResponse {
+        var path = "/api/events"
+        if let lat, let lon { path += "?lat=\(lat)&lon=\(lon)" }
+        return try await get(path)
+    }
+
+    // MARK: - Conversations
+
+    func conversations(type: String? = nil) async throws -> ConversationsResponse {
+        let path = type.map { "/api/conversations?type=\($0)" } ?? "/api/conversations"
+        return try await get(path)
+    }
+
+    func conversation(id: String) async throws -> ConversationDetail {
+        try await get("/api/conversations/\(id)")
+    }
 }

@@ -178,3 +178,80 @@ struct MapPin: Codable, Identifiable {
         case mapsUrl = "maps_url"
     }
 }
+
+// MARK: - Itinerary
+
+struct ItineraryResponse: Codable {
+    let days: [ItineraryDay]
+}
+
+struct ItineraryDay: Codable, Identifiable {
+    let tripDay: Int
+    let date: String
+    let stops: [GuideStop]
+
+    var id: String { date }
+
+    enum CodingKeys: String, CodingKey {
+        case date, stops
+        case tripDay = "trip_day"
+    }
+}
+
+// MARK: - Events
+
+struct EventsResponse: Codable {
+    let events: [LocalEvent]
+}
+
+struct LocalEvent: Codable, Identifiable {
+    let title: String
+    let date: String
+    let time: String?
+    let location: String?
+    let blurb: String?
+    let url: String?
+
+    var id: String { title + date }
+}
+
+// MARK: - Conversations
+
+struct ConversationsResponse: Codable {
+    let conversations: [Conversation]
+}
+
+struct Conversation: Codable, Identifiable {
+    let id: String
+    let type: String
+    let summary: String
+    let startedAt: Double
+    let messageCount: Int
+    let placeName: String?
+
+    enum CodingKeys: String, CodingKey {
+        case id, type, summary
+        case startedAt = "started_at"
+        case messageCount = "message_count"
+        case placeName = "place_name"
+    }
+}
+
+struct ConversationDetail: Codable {
+    let id: String
+    let type: String
+    let summary: String
+    let startedAt: Double
+    let messages: [HistoryMessage]
+
+    enum CodingKeys: String, CodingKey {
+        case id, type, summary, messages
+        case startedAt = "started_at"
+    }
+}
+
+struct HistoryMessage: Codable {
+    let role: String
+    let text: String
+    let timestamp: String?
+}

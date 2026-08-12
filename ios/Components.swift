@@ -82,6 +82,31 @@ struct PinDot: View {
     }
 }
 
+struct HistoryBubble: View {
+    let text: String
+    let isUser: Bool
+    var accent: Color = .hodAegean
+
+    @ViewBuilder
+    private var renderedText: some View {
+        if let attr = try? AttributedString(markdown: text, options: .init(interpretedSyntax: .full)) {
+            Text(attr)
+        } else {
+            Text(text)
+        }
+    }
+
+    var body: some View {
+        renderedText
+            .padding(.horizontal, 14).padding(.vertical, 11)
+            .background(isUser ? accent : Color.hodCard)
+            .foregroundStyle(isUser ? .white : Color.hodInk)
+            .overlay(RoundedRectangle(cornerRadius: 18).stroke(isUser ? .clear : Color.hodInk.opacity(0.10)))
+            .clipShape(RoundedRectangle(cornerRadius: 18))
+            .frame(maxWidth: .infinity, alignment: isUser ? .trailing : .leading)
+    }
+}
+
 struct FlowChips: View {
     let items: [(String, Color)]
     var body: some View {
