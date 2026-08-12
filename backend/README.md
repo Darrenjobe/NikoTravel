@@ -62,6 +62,45 @@ curl -X POST -H "Authorization: Bearer $TOKEN" localhost:8000/api/jobs/morning
 curl -H "Authorization: Bearer $TOKEN" localhost:8000/api/today
 ```
 
+## Running the jobs by hand
+
+In production Render's cron services just `curl` these endpoints — locally you
+call them yourself. `scripts/job.sh` reads the token from `.env` for you:
+
+```bash
+scripts/job.sh reindex      # rebuild the knowledge index (run this first)
+scripts/job.sh morning      # Morning Guide for today
+scripts/job.sh evening      # Evening Recap from today's journal entries
+scripts/job.sh insights     # Insight cards for the Journey tab
+scripts/job.sh summarize    # Titles for the conversation history
+```
+
+Two jobs have thresholds that make them do nothing on a quiet test database.
+Override them while testing (production never passes these):
+
+```bash
+scripts/job.sh 'insights?force=true'    # ignore the "2+ interactions in 24h" rule
+scripts/job.sh 'insights?hours=72'      # widen the lookback window
+scripts/job.sh 'summarize?force=true'   # don't wait 10 min for threads to go idle
+```
+
+`force` overrides a threshold, not reality — with an empty archive `insights`
+still skips rather than asking the model to analyze nothing.
+
+Point the script at the deployed service instead of localhost with:
+
+```bash
+HODEGOS_BASE=https://hodegos-backend.onrender.com scripts/job.sh morning
+```
+
+Raw equivalent, if you'd rather not use the script:
+
+```bash
+TOKEN=$(grep '^API_TOKEN=' .env | cut -d= -f2-)
+curl -X POST -H "Authorization: Bearer $TOKEN" \
+  'localhost:8000/api/jobs/insights?force=true'
+```
+
 ## Testing from your phone (same Wi-Fi)
 
 `127.0.0.1` is loopback — only the Mac itself can reach it. Bind to all

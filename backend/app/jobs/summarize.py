@@ -32,9 +32,9 @@ JOURNAL_PROMPT = (
 )
 
 
-def pending(limit: int = 10) -> list[dict]:
+def pending(limit: int = 10, idle_seconds: int = IDLE_SECONDS) -> list[dict]:
     """Threads that are idle, substantial, and not yet summarized."""
-    cutoff = db.now() - IDLE_SECONDS
+    cutoff = db.now() - idle_seconds
     with db.conn() as c:
         rows = c.execute(
             "SELECT t.id, t.kind FROM threads t "
@@ -69,8 +69,17 @@ def summarize_thread(thread_id: str, kind: str) -> str | None:
     return summary
 
 
-def run(limit: int = 10) -> dict:
-    done = [
-        t["id"] for t in pending(limit) if summarize_thread(t["id"], t["kind"])
-    ]
-    return {"summarized": len(done), "thread_ids": done}
+def run(limit: int = 10, force: bool = False) -> dict:
+    """Summarize idle threads.
+
+    `force` drops the 10-minute idle requirement so a thread you just finished
+    typing can be summarized immediately — useful when testing locally.
+    """
+    idle = 0 if force else IDLE_SECONDS
+    candidates = pending(limit, idle_seconds=idle)
+    done = [t["id"] for t in candidates if summarize_thread(t["id"], t["kind"])]
+    return {
+        "summarized": len(done),
+        "thread_ids": done,
+        "candidates": len(candidates),
+    }

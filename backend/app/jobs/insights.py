@@ -6,7 +6,7 @@ matching the product rule: no activity, no digest.
 from __future__ import annotations
 
 from app import config
-from app.services import archive, llm
+from app.services import archive, llm, tripday
 from app.storage import db
 
 INSIGHTS_SCHEMA = {
@@ -30,12 +30,27 @@ INSIGHTS_SCHEMA = {
 }
 
 
-def run() -> dict:
-    n = archive.interactions_last_hours(24)
-    if n < 2:
-        return {"skipped": f"only {n} interactions in the last 24h"}
+MIN_INTERACTIONS = 2
 
-    window = archive.window_text(24)
+
+def run(hours: int = 24, force: bool = False) -> dict:
+    """Generate insight cards from the trailing `hours` of interactions.
+
+    `force` skips the activity threshold (useful when testing locally with a
+    thin archive); `hours` widens the window. Neither is used in production —
+    the cron job calls this with defaults.
+    """
+    n = archive.interactions_last_hours(hours)
+    if n < MIN_INTERACTIONS and not force:
+        return {
+            "skipped": f"only {n} interaction(s) in the last {hours}h "
+                       f"(need {MIN_INTERACTIONS}); retry with ?force=true"
+        }
+
+    window = archive.window_text(hours)
+    if not window.strip():
+        # Forcing past the threshold still can't invent material to analyze.
+        return {"skipped": f"no interactions recorded in the last {hours}h"}
     result = llm.get_llm().extract_json(
         model=config.JOB_MODEL,
         system=(
@@ -48,9 +63,9 @@ def run() -> dict:
         prompt=window,
         schema=INSIGHTS_SCHEMA,
     )
-    import datetime as dt
 
-    tag = dt.date.today().strftime("%b %-d") + " · digest"
+    # Trip-timezone date, not the server's UTC date.
+    tag = tripday.today().strftime("%b %-d") + " · digest"
     with db.conn() as c:
         for item in result["insights"]:
             c.execute(
