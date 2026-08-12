@@ -1,0 +1,32 @@
+# The Blueprint builds with dockerContext: . (the repo root), because the
+# Dockerfile needs both backend/ and knowledge/. Without this file the entire
+# repo — .git history, the Xcode sources, and any local secrets or SQLite
+# database — is uploaded to Render's builder on every deploy. None of it is
+# COPYed into the image, but it should never leave the machine in the first
+# place.
+
+.git
+.gitignore
+
+# Secrets and local state. backend/.env is gitignored, so it exists only on
+# your Mac — which is exactly where a build context would pick it up.
+backend/.env
+backend/.env.*
+backend/data/
+!backend/.env.example
+
+# iOS client — never part of the server image.
+ios/
+
+# Docs and planning.
+docs/
+*.md
+!knowledge/**/*.md
+
+# Python and editor droppings.
+__pycache__/
+*.pyc
+*.pyo
+.venv/
+.pytest_cache/
+.DS_Store

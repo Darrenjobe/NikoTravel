@@ -76,7 +76,28 @@ curl -s -X POST -H "Authorization: Bearer $TOKEN" \
 
 # 5. Prove the cron jobs will work (same call they make)
 curl -s -X POST -H "Authorization: Bearer $TOKEN" $BASE/api/jobs/morning
+
+# 6. Full itinerary — expect 21, not "days remaining"
+curl -s -H "Authorization: Bearer $TOKEN" $BASE/api/itinerary \
+  | python3 -c 'import sys,json;print(len(json.load(sys.stdin)["days"]),"days")'
+
+# 7. Map search — the one call that needs GOOGLE_PLACES_API_KEY.
+#    An empty list here means the key is missing, NOT that the code is broken.
+curl -s -H "Authorization: Bearer $TOKEN" \
+  "$BASE/api/places/search?q=taverna&lat=37.9715&lon=23.7267" | head -c 300
+
+# 8. Saved places survive a restart — this is the disk test.
+#    Run the POST, restart the service from the dashboard, then run the GET.
+curl -s -X POST -H "Authorization: Bearer $TOKEN" -H "Content-Type: application/json" \
+  -d '{"place_id":"deploy_check","name":"Disk test"}' $BASE/api/saved
+curl -s -H "Authorization: Bearer $TOKEN" $BASE/api/saved
+curl -s -X DELETE -H "Authorization: Bearer $TOKEN" $BASE/api/saved/deploy_check
 ```
+
+Step 8 is worth doing properly. It is the only check that proves the persistent
+disk is actually mounted at `/data` and that `DATA_DIR` points at it — if the
+disk were misconfigured, everything above would still pass and you would lose
+every journal entry on the first redeploy.
 
 Check the service's **Logs** tab for the startup config block:
 
@@ -127,3 +148,5 @@ standing in a monastery courtyard.
 | Empty/irrelevant answers | `/api/rebuild-index` was never run after deploy |
 | Cron jobs fail | Check the cron service's own log; confirm `BACKEND_HOST` resolved and `API_TOKEN` is set on **each** cron service |
 | Chat times out | A tool-using answer can take 20–30s. Lower `CHAT_MODEL` to `claude-haiku-4-5` or reduce effort — both are env vars, changeable from the dashboard without a redeploy |
+| Map search returns `{"places":[]}` | `GOOGLE_PLACES_API_KEY` is unset. Search degrades to empty rather than erroring, so check the startup log's `✓/✗` block before suspecting the code |
+| Saved places vanish after a redeploy | The disk isn't mounted where `DATA_DIR` points. Confirm the web service shows a 5GB disk at `/data` |
