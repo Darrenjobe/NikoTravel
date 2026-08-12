@@ -62,6 +62,74 @@ curl -X POST -H "Authorization: Bearer $TOKEN" localhost:8000/api/jobs/morning
 curl -H "Authorization: Bearer $TOKEN" localhost:8000/api/today
 ```
 
+## The knowledge base (itinerary and notes)
+
+Everything the concierge knows about the trip lives in `knowledge/` as
+Markdown. The itinerary is already there:
+
+```
+knowledge/itinerary/greece-spiritual-historical-tour.md
+```
+
+It is read **two different ways**, which matters when you edit it:
+
+| Path | Feeds | How it's read |
+|---|---|---|
+| Chroma index | Concierge answers (RAG) | Chunked on `/api/rebuild-index` |
+| Direct parsing | `/api/today`, `/api/itinerary`, the injected context, morning guides | Overview table → dates/regions; `* **Name:** blurb` bullets → stops; dining tables → meal options |
+
+**After any edit, run one command:**
+
+```bash
+scripts/job.sh reindex
+```
+
+That re-chunks the index *and* clears the parsed-itinerary caches, so changes
+take effect immediately — no restart. It reports back what it found:
+
+```json
+{"indexed_chunks": 11, "files": ["itinerary/greece-...md"],
+ "itinerary_found": true, "trip_days_parsed": 21}
+```
+
+Check `trip_days_parsed` — if it's 0 or wrong, the overview table stopped
+parsing (see Format rules below).
+
+### Adding more files
+
+Any `.md` anywhere under `knowledge/` is indexed automatically — no config, no
+code change. Useful additions:
+
+```
+knowledge/notes/bookings.md        hotel/ferry confirmations
+knowledge/notes/preferences.md     dietary needs, mobility, what you care about
+knowledge/notes/contacts.md        guides, drivers, emergency numbers
+```
+
+Then `scripts/job.sh reindex`. These are retrieved by the concierge but not
+parsed structurally — only the itinerary drives dates and stops.
+
+### Format rules (itinerary only)
+
+The structural parsing depends on the existing shape. Keep these intact:
+
+- **Overview table** rows of `| Region | N Days | Sept 5-7 |` — drives
+  date→region mapping. Month abbreviations and `5-7` / `15` ranges both work.
+- **`### Key Sites & Activities`** followed by `* **Name:** description`
+  bullets — becomes `stops[]`.
+- **Dining tables** with a `**Breakfast**` / `**Lunch**` / `**Dinner**` first
+  cell — becomes `dining[]`.
+
+Renaming the itinerary file is safe: the loader falls back to the first `.md`
+in `knowledge/itinerary/`, and `ITINERARY_FILE` can point anywhere.
+
+### In production
+
+`knowledge/` is baked into the Docker image, so on Render the loop is:
+edit → commit → push → Render redeploys → then
+`HODEGOS_BASE=https://... scripts/job.sh reindex`. The redeploy ships the new
+file; the reindex makes the server use it.
+
 ## Running the jobs by hand
 
 In production Render's cron services just `curl` these endpoints — locally you

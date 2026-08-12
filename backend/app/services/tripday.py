@@ -29,6 +29,11 @@ def _parse_dates(text: str) -> tuple[dt.date, dt.date] | None:
     return start, end
 
 
+def clear_cache() -> None:
+    """Drop the parsed date→region schedule so edits take effect immediately."""
+    schedule.cache_clear()
+
+
 @lru_cache(maxsize=1)
 def schedule() -> list[dict]:
     rows = []

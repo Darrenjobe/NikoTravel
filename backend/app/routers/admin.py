@@ -5,8 +5,9 @@ import inspect
 
 from fastapi import APIRouter, HTTPException, Query
 
+from app import config
 from app.jobs import evening, insights, morning, summarize
-from app.services import rag
+from app.services import itinerary, rag, tripday
 
 router = APIRouter()
 
@@ -20,8 +21,27 @@ JOBS = {
 
 @router.post("/api/rebuild-index")
 def rebuild_index():
+    """Re-read everything in knowledge/ after editing it.
+
+    Two things go stale on an edit, so both are refreshed here: the Chroma
+    index the concierge retrieves from, and the in-process caches holding the
+    parsed schedule and per-region stops. Clearing only the first would leave
+    /api/today and /api/itinerary serving the old itinerary until a restart.
+    """
+    tripday.clear_cache()
+    itinerary.clear_cache()
     count = rag.rebuild_knowledge()
-    return {"indexed_chunks": count}
+    files = sorted(
+        str(p.relative_to(config.KNOWLEDGE_DIR))
+        for p in config.KNOWLEDGE_DIR.rglob("*.md")
+    )
+    return {
+        "indexed_chunks": count,
+        "files": files,
+        "itinerary_file": str(config.ITINERARY_FILE),
+        "itinerary_found": config.ITINERARY_FILE.is_file(),
+        "trip_days_parsed": len(itinerary.days()),
+    }
 
 
 @router.post("/api/jobs/{name}")

@@ -18,6 +18,12 @@ from app.services import tripday
 _BULLET = re.compile(r"^\*\s+\*\*(?P<name>[^:*]+):?\*\*:?\s*(?P<blurb>.*)$")
 
 
+def clear_cache() -> None:
+    """Drop parsed-itinerary caches so edits take effect without a restart."""
+    sites_for_region.cache_clear()
+    dining_for_region.cache_clear()
+
+
 @lru_cache(maxsize=32)
 def sites_for_region(region: str | None) -> list[dict]:
     """Parse the 'Key Sites & Activities' bullets for a region."""

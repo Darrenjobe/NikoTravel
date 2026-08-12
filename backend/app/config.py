@@ -61,6 +61,24 @@ TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 # Trip
 TRIP_YEAR = int(os.environ.get("TRIP_YEAR", "2026"))
 TRIP_TZ = os.environ.get("TRIP_TZ", "Europe/Athens")
-ITINERARY_FILE = KNOWLEDGE_DIR / "itinerary" / "greece-spiritual-historical-tour.md"
+def _find_itinerary() -> Path:
+    """Locate the itinerary that drives date→region and stop parsing.
+
+    Every other file in knowledge/ is picked up by the RAG glob, but this one
+    is also parsed structurally, so it has to be found by path. Renaming it
+    would otherwise break /api/today and /api/itinerary silently while the
+    concierge kept answering — hence the fallback.
+    """
+    explicit = os.environ.get("ITINERARY_FILE")
+    if explicit:
+        return Path(explicit)
+    default = KNOWLEDGE_DIR / "itinerary" / "greece-spiritual-historical-tour.md"
+    if default.is_file():
+        return default
+    candidates = sorted((KNOWLEDGE_DIR / "itinerary").glob("*.md"))
+    return candidates[0] if candidates else default
+
+
+ITINERARY_FILE = _find_itinerary()
 
 DATA_DIR.mkdir(parents=True, exist_ok=True)
