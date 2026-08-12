@@ -6,7 +6,7 @@ enum APIConfig {
     static var baseURL: URL {
         if let s = Bundle.main.object(forInfoDictionaryKey: "HodegosBaseURL") as? String,
            let url = URL(string: s) { return url }
-        return URL(string: "http://127.0.0.1:8000")!
+        return URL(string: "http://192.168.68.62:8000")!
     }
 
     static var token: String {
@@ -16,22 +16,12 @@ enum APIConfig {
 
 enum APIError: LocalizedError {
     case offline
-    case missingToken
-    case unauthorized
     case server(Int)
 
     var errorDescription: String? {
         switch self {
-        case .offline:
-            return "No connection — Niko needs data to answer."
-        case .missingToken:
-            return "HodegosAPIToken is missing from Info.plist. Add it with "
-                 + "the same value as the backend's API_TOKEN."
-        case .unauthorized:
-            return "Unauthorized (401). HodegosAPIToken doesn't match the "
-                 + "backend's API_TOKEN — check the server log for details."
-        case .server(let code):
-            return "Server error (\(code)). Try again."
+        case .offline: return "No connection — Niko needs data to answer."
+        case .server(let code): return "Server error (\(code)). Try again."
         }
     }
 }
@@ -42,10 +32,6 @@ struct APIClient {
     private func request<Body: Encodable, Response: Decodable>(
         _ path: String, method: String = "GET", body: Body? = nil
     ) async throws -> Response {
-        // Fail with a clear message rather than sending "Bearer " and
-        // puzzling over a 401.
-        guard !APIConfig.token.isEmpty else { throw APIError.missingToken }
-
         var req = URLRequest(url: APIConfig.baseURL.appendingPathComponent(path))
         req.httpMethod = method
         req.timeoutInterval = 60
@@ -60,10 +46,8 @@ struct APIClient {
         } catch {
             throw APIError.offline
         }
-        guard let http = response as? HTTPURLResponse else { throw APIError.server(0) }
-        if http.statusCode == 401 { throw APIError.unauthorized }
-        guard (200..<300).contains(http.statusCode) else {
-            throw APIError.server(http.statusCode)
+        guard let http = response as? HTTPURLResponse, (200..<300).contains(http.statusCode) else {
+            throw APIError.server((response as? HTTPURLResponse)?.statusCode ?? 0)
         }
         return try JSONDecoder().decode(Response.self, from: data)
     }

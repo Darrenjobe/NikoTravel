@@ -12,16 +12,22 @@ struct JournalView: View {
     @State private var input = ""
     @State private var isThinking = false
     @State private var saved = false
+    @State private var showNewEntryAlert = false
+    @FocusState private var inputFocused: Bool
 
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
                 if let confirmedPlace {
-                    Label(confirmedPlace, systemImage: "mappin.circle.fill")
-                        .font(.footnote.weight(.semibold))
-                        .frame(maxWidth: .infinity, alignment: .leading)
-                        .padding(.horizontal).padding(.vertical, 6)
-                        .background(.orange.opacity(0.12))
+                    HStack(spacing: 8) {
+                        Image(systemName: "mappin.circle.fill").foregroundStyle(Color.hodTerra)
+                        Text(confirmedPlace)
+                            .font(.hodDisplay(.headline))
+                            .foregroundStyle(Color.hodTerra)
+                    }
+                    .frame(maxWidth: .infinity, alignment: .leading)
+                    .padding(.horizontal).padding(.vertical, 6)
+                    .background(Color.hodTerra.opacity(0.12))
                 }
                 if entryId == nil {
                     linkField
@@ -29,10 +35,18 @@ struct JournalView: View {
                 thread
                 inputBar
             }
+            .hodScreen(tint: .hodTerra)
             .navigationTitle("Journal")
             .navigationBarTitleDisplayMode(.inline)
-            .tint(.orange)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if !messages.isEmpty {
+                        Button { showNewEntryAlert = true } label: {
+                            Image(systemName: "square.and.pencil")
+                                .foregroundStyle(Color.hodTerra)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     Button("Done") { finish() }
                         .fontWeight(.semibold)
@@ -41,6 +55,13 @@ struct JournalView: View {
             }
             .alert("Saved to your Journey ✓", isPresented: $saved) {
                 Button("OK") {}
+            }
+            .alert("Start a new entry?", isPresented: $showNewEntryAlert) {
+                if entryId != nil {
+                    Button("Save & Start New") { finish() }
+                }
+                Button("Discard", role: .destructive) { resetState() }
+                Button("Cancel", role: .cancel) {}
             }
         }
     }
@@ -53,41 +74,57 @@ struct JournalView: View {
     }
 
     private var thread: some View {
-        ScrollView {
-            LazyVStack(alignment: .leading, spacing: 10) {
-                if messages.isEmpty {
-                    Text("How was it? Tell me about somewhere you just went — a meal, a monastery, a museum, anything. 🎙️")
-                        .padding(12)
-                        .background(Color(.secondarySystemBackground))
-                        .clipShape(RoundedRectangle(cornerRadius: 16))
+        ScrollViewReader { proxy in
+            ScrollView {
+                LazyVStack(alignment: .leading, spacing: 10) {
+                    if messages.isEmpty {
+                        Text("How was it? Tell me about somewhere you just went — a meal, a monastery, a museum, anything. 🎙️")
+                            .padding(12)
+                            .background(Color.hodCard)
+                            .clipShape(RoundedRectangle(cornerRadius: 16))
+                            .overlay(RoundedRectangle(cornerRadius: 16).stroke(Color.hodInk.opacity(0.08)))
+                    }
+                    ForEach(messages) { msg in
+                        MessageBubble(message: msg, onShowMap: { _ in }, accent: .hodTerra)
+                            .id(msg.id)
+                    }
+                    if let candidate {
+                        CandidateCard(place: candidate,
+                                      onYes: { confirm(true) },
+                                      onNo: { confirm(false) })
+                    }
+                    if isThinking { ProgressView().padding(.leading, 16) }
                 }
-                ForEach(messages) { msg in
-                    MessageBubble(message: msg, onShowMap: { _ in })
-                }
-                if let candidate {
-                    CandidateCard(place: candidate,
-                                  onYes: { confirm(true) },
-                                  onNo: { confirm(false) })
-                }
-                if isThinking { ProgressView().padding(.leading, 16) }
+                .padding()
             }
-            .padding()
+            .scrollDismissesKeyboard(.interactively)
+            .onChange(of: messages.count) {
+                if let last = messages.last { proxy.scrollTo(last.id, anchor: .bottom) }
+            }
         }
     }
 
     private var inputBar: some View {
         HStack(spacing: 8) {
-            TextField("Tell Niko about it…", text: $input, axis: .vertical)
+            TextField("Tell Nikos more about it…", text: $input, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
+                .focused($inputFocused)
                 .onSubmit { send() }
-            Button {
-                send()
-            } label: {
-                Image(systemName: "arrow.up.circle.fill").font(.title2)
+                .toolbar {
+                    ToolbarItemGroup(placement: .keyboard) {
+                        Spacer()
+                        Button("Done") { inputFocused = false }
+                    }
+                }
+            Button { send() } label: {
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.hodTerra)
             }
             .disabled(input.trimmingCharacters(in: .whitespaces).isEmpty || isThinking || candidate != nil)
         }
         .padding()
+        .background(Color.hodPaper)
     }
 
     private func send() {
@@ -133,6 +170,15 @@ struct JournalView: View {
         }
     }
 
+    private func resetState() {
+        entryId = nil
+        messages = []
+        confirmedPlace = nil
+        candidate = nil
+        mapsLink = ""
+        input = ""
+    }
+
     private func finish() {
         guard let id = entryId else { return }
         isThinking = true
@@ -149,33 +195,5 @@ struct JournalView: View {
                 messages.append(ChatMessage(role: .niko, text: error.localizedDescription))
             }
         }
-    }
-}
-
-struct CandidateCard: View {
-    let place: Place
-    let onYes: () -> Void
-    let onNo: () -> Void
-
-    var body: some View {
-        VStack(alignment: .leading, spacing: 8) {
-            HStack {
-                Image(systemName: "mappin.circle.fill").font(.title2).foregroundStyle(.orange)
-                VStack(alignment: .leading) {
-                    Text(place.name ?? "Unknown").font(.subheadline.weight(.bold))
-                    Text(place.address ?? "").font(.caption).foregroundStyle(.secondary)
-                }
-            }
-            Text("Is this the place?").font(.footnote)
-            HStack {
-                Button("Yes, that's it", action: onYes)
-                    .buttonStyle(.borderedProminent).tint(.orange)
-                Button("No", action: onNo)
-                    .buttonStyle(.bordered)
-            }
-        }
-        .padding()
-        .background(Color(.secondarySystemBackground))
-        .clipShape(RoundedRectangle(cornerRadius: 16))
     }
 }

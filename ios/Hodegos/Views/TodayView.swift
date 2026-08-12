@@ -9,23 +9,23 @@ struct TodayView: View {
             List {
                 if offline {
                     Label("Offline — showing your last synced guide", systemImage: "wifi.slash")
-                        .font(.caption).foregroundStyle(.secondary)
+                        .font(.caption).foregroundStyle(Color.hodCrimson)
                 }
                 Section {
                     if let guide = today?.morningGuide {
                         ForEach(guide.stops) { stop in
                             VStack(alignment: .leading, spacing: 5) {
                                 HStack {
-                                    Text(stop.name).font(.subheadline.weight(.bold))
+                                    Text(stop.name).font(.hodDisplay(.headline))
                                     Spacer()
-                                    Text(stop.hours).font(.caption.weight(.semibold))
-                                        .foregroundStyle(.green)
+                                    HoursPill(hours: stop.hours)
                                 }
                                 Text(stop.blurb).font(.footnote)
                                 Text("💡 \(stop.tip)").font(.caption)
                                     .padding(8)
                                     .frame(maxWidth: .infinity, alignment: .leading)
-                                    .background(.blue.opacity(0.08), in: RoundedRectangle(cornerRadius: 8))
+                                    .background(Color.hodAegean.opacity(0.08),
+                                                in: RoundedRectangle(cornerRadius: 8))
                             }
                             .padding(.vertical, 2)
                         }
@@ -37,7 +37,7 @@ struct TodayView: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                 } header: {
-                    Label("Morning Guide", systemImage: "sun.max.fill")
+                    HodLabel(text: "Morning Guide")
                 }
 
                 Section {
@@ -49,7 +49,9 @@ struct TodayView: View {
                                     .font(.subheadline.weight(.semibold))
                                 Text(entry.line ?? "").font(.caption).foregroundStyle(.secondary)
                                 if let maps = entry.mapsUrl, let url = URL(string: maps) {
-                                    Link("Google Maps ↗", destination: url).font(.caption.weight(.semibold))
+                                    Link("Google Maps ↗", destination: url)
+                                        .font(.caption.weight(.semibold))
+                                        .foregroundStyle(Color.hodAegean)
                                 }
                             }
                         }
@@ -58,9 +60,10 @@ struct TodayView: View {
                             .font(.footnote).foregroundStyle(.secondary)
                     }
                 } header: {
-                    Label("Evening Recap", systemImage: "moon.stars.fill")
+                    HodLabel(text: "Evening Recap")
                 }
             }
+            .hodScreen()
             .navigationTitle(title)
             .task { await load() }
             .refreshable { await load() }

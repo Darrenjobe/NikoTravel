@@ -9,6 +9,8 @@ struct TripMapView: View {
     @State private var selectedRec: Place?
     @State private var showMine = true
     @State private var showRecs = true
+    @State private var searchText = ""
+    @State private var searchResults: [Place] = []
     @State private var position: MapCameraPosition = .userLocation(
         fallback: .region(.init(center: .init(latitude: 37.9715, longitude: 23.7267),
                                 latitudinalMeters: 3000, longitudinalMeters: 3000)))
@@ -21,7 +23,7 @@ struct TripMapView: View {
                     ForEach(journalPins) { pin in
                         Annotation(pin.placeName ?? "Entry",
                                    coordinate: .init(latitude: pin.lat, longitude: pin.lon)) {
-                            PinDot(color: .orange)
+                            PinDot(color: .hodTerra)
                                 .onTapGesture { selectedPin = pin; selectedRec = nil }
                         }
                     }
@@ -30,9 +32,16 @@ struct TripMapView: View {
                     ForEach(recommendedPlaces.filter { $0.lat != nil && $0.lon != nil }) { place in
                         Annotation(place.name ?? "Suggested",
                                    coordinate: .init(latitude: place.lat!, longitude: place.lon!)) {
-                            PinDot(color: .blue)
+                            PinDot(color: .hodAegean)
                                 .onTapGesture { selectedRec = place; selectedPin = nil }
                         }
+                    }
+                }
+                ForEach(searchResults.filter { $0.lat != nil && $0.lon != nil }) { place in
+                    Annotation(place.name ?? "Result",
+                               coordinate: .init(latitude: place.lat!, longitude: place.lon!)) {
+                        PinDot(color: .hodOlive)
+                            .onTapGesture { selectedRec = place; selectedPin = nil }
                     }
                 }
             }
@@ -40,6 +49,9 @@ struct TripMapView: View {
             .safeAreaInset(edge: .bottom) { detailCard }
             .navigationTitle("Map")
             .navigationBarTitleDisplayMode(.inline)
+            .searchable(text: $searchText, prompt: "Search restaurants, museums…")
+            .onSubmit(of: .search) { Task { await search() } }
+            .onChange(of: searchText) { if searchText.isEmpty { searchResults = [] } }
             .task { await load() }
             .refreshable { await load() }
         }
@@ -48,10 +60,20 @@ struct TripMapView: View {
     private var legend: some View {
         HStack(spacing: 8) {
             Toggle(isOn: $showMine) { Label("My places", systemImage: "circle.fill") }
-                .toggleStyle(.button).tint(.orange).font(.caption.weight(.semibold))
+                .toggleStyle(.button).tint(.hodTerra).font(.caption.weight(.semibold))
             Toggle(isOn: $showRecs) { Label("Recommendations", systemImage: "circle.fill") }
-                .toggleStyle(.button).tint(.blue).font(.caption.weight(.semibold))
+                .toggleStyle(.button).tint(.hodAegean).font(.caption.weight(.semibold))
             Spacer()
+            Button {
+                position = .userLocation(
+                    fallback: .region(.init(center: .init(latitude: 37.9715, longitude: 23.7267),
+                                           latitudinalMeters: 3000, longitudinalMeters: 3000)))
+            } label: {
+                Image(systemName: "location.fill")
+                    .padding(8)
+                    .background(.regularMaterial, in: Circle())
+                    .foregroundStyle(Color.hodAegean)
+            }
         }
         .padding(.horizontal)
     }
@@ -78,16 +100,30 @@ struct TripMapView: View {
             journalPins = cached.pins
         }
     }
-}
 
-struct PinDot: View {
-    let color: Color
-    var body: some View {
-        Circle()
-            .fill(color)
-            .frame(width: 18, height: 18)
-            .overlay(Circle().stroke(.white, lineWidth: 2.5))
-            .shadow(radius: 2)
+    private func search() async {
+        guard !searchText.isEmpty else { return }
+        let req = MKLocalSearch.Request()
+        req.naturalLanguageQuery = searchText
+        guard let results = try? await MKLocalSearch(request: req).start() else { return }
+        searchResults = results.mapItems.compactMap { item in
+            guard let name = item.name else { return nil }
+            return Place(
+                placeId: "\(item.placemark.coordinate.latitude),\(item.placemark.coordinate.longitude)",
+                name: name,
+                address: item.placemark.thoroughfare,
+                lat: item.placemark.coordinate.latitude,
+                lon: item.placemark.coordinate.longitude,
+                category: item.pointOfInterestCategory?.rawValue,
+                rating: nil,
+                ratingCount: nil,
+                mapsUrl: nil
+            )
+        }
+        if let first = searchResults.first, let lat = first.lat, let lon = first.lon {
+            position = .region(.init(center: .init(latitude: lat, longitude: lon),
+                                    latitudinalMeters: 1500, longitudinalMeters: 1500))
+        }
     }
 }
 
@@ -100,7 +136,7 @@ struct MapDetailCard: View {
     var body: some View {
         VStack(alignment: .leading, spacing: 6) {
             HStack {
-                Text(title).font(.headline)
+                Text(title).font(.hodDisplay(.title3))
                 Spacer()
                 Button { onClose() } label: { Image(systemName: "xmark.circle.fill") }
                     .foregroundStyle(.secondary)
@@ -111,6 +147,7 @@ struct MapDetailCard: View {
             if let mapsUrl, let url = URL(string: mapsUrl) {
                 Link("Open in Google Maps ↗", destination: url)
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hodAegean)
             }
         }
         .padding()

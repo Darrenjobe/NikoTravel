@@ -17,6 +17,8 @@ struct JourneyView: View {
 
                 if section == 0 { placesList } else { insightsList }
             }
+            .tint(.hodAegean)
+            .background(Color.hodPaper)
             .navigationTitle("Journey")
             .navigationBarTitleDisplayMode(.inline)
             .task { await load() }
@@ -28,8 +30,10 @@ struct JourneyView: View {
         List {
             if let prefs = placesResponse?.preferences,
                !(prefs.likes.isEmpty && prefs.dislikes.isEmpty) {
-                Section("What Niko's learned") {
+                Section {
                     PreferenceChips(likes: prefs.likes, dislikes: prefs.dislikes)
+                } header: {
+                    HodLabel(text: "What Niko's learned")
                 }
             }
             Section {
@@ -40,7 +44,8 @@ struct JourneyView: View {
                         VStack(alignment: .leading, spacing: 3) {
                             HStack {
                                 Text(entry.placeName ?? "Unconfirmed location")
-                                    .font(.subheadline.weight(.semibold))
+                                    .font(.hodDisplay(.headline))
+                                    .foregroundStyle(entry.placeName == nil ? Color.hodMuted : Color.hodInk)
                                 Spacer()
                                 Text(sentimentEmoji(entry.sentiment))
                             }
@@ -53,6 +58,8 @@ struct JourneyView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.hodPaper)
     }
 
     private var insightsList: some View {
@@ -76,6 +83,8 @@ struct JourneyView: View {
                 }
             }
         }
+        .scrollContentBackground(.hidden)
+        .background(Color.hodPaper)
     }
 
     private func load() async {
@@ -106,27 +115,9 @@ struct PreferenceChips: View {
 
     var body: some View {
         FlowChips(items:
-            likes.map { ("Likes: \($0)", Color.green) } +
-            dislikes.map { ("Dislikes: \($0)", Color.red) }
+            likes.map { ("Likes: \($0)", Color.hodOlive) } +
+            dislikes.map { ("Dislikes: \($0)", Color.hodCrimson) }
         )
-    }
-}
-
-struct FlowChips: View {
-    let items: [(String, Color)]
-
-    var body: some View {
-        ScrollView(.horizontal, showsIndicators: false) {
-            HStack {
-                ForEach(items.indices, id: \.self) { i in
-                    Text(items[i].0)
-                        .font(.caption.weight(.semibold))
-                        .padding(.horizontal, 10).padding(.vertical, 5)
-                        .background(items[i].1.opacity(0.12), in: Capsule())
-                        .foregroundStyle(items[i].1)
-                }
-            }
-        }
     }
 }
 
@@ -135,23 +126,27 @@ struct EntryDetailView: View {
 
     var body: some View {
         List {
-            Section("Niko's summary") {
+            Section {
                 Text(entry.summary ?? "—").font(.footnote)
+            } header: {
+                HodLabel(text: "Niko's summary")
             }
             Section("Best / Worst") {
                 Label(entry.best ?? "—", systemImage: "hand.thumbsup.fill")
-                    .font(.footnote).foregroundStyle(.green)
+                    .font(.footnote).foregroundStyle(Color.hodOlive)
                 Label(entry.worst ?? "—", systemImage: "hand.thumbsdown.fill")
-                    .font(.footnote).foregroundStyle(.red)
+                    .font(.footnote).foregroundStyle(Color.hodCrimson)
             }
             if let maps = entry.mapsUrl, let url = URL(string: maps) {
                 Link("Open in Google Maps ↗", destination: url)
                     .font(.subheadline.weight(.semibold))
+                    .foregroundStyle(Color.hodAegean)
             } else {
                 Label("Unconfirmed location — no link", systemImage: "mappin.slash")
                     .font(.footnote).foregroundStyle(.secondary)
             }
         }
+        .hodScreen()
         .navigationTitle(entry.placeName ?? "Entry")
         .navigationBarTitleDisplayMode(.inline)
     }

@@ -29,14 +29,26 @@ struct AskView: View {
                 memoryBar
                 inputBar
             }
-            .navigationTitle("Ask Niko")
+            .hodScreen()
+            .navigationTitle("Ask Nikos")
             .navigationBarTitleDisplayMode(.inline)
             .toolbar {
+                ToolbarItem(placement: .topBarLeading) {
+                    if !messages.isEmpty {
+                        Button {
+                            messages = []
+                            input = ""
+                        } label: {
+                            Image(systemName: "square.and.pencil")
+                                .foregroundStyle(Color.hodAegean)
+                        }
+                    }
+                }
                 ToolbarItem(placement: .topBarTrailing) {
                     if let name = location.placeName {
                         Label(name, systemImage: "location.fill")
                             .font(.caption2.weight(.semibold))
-                            .foregroundStyle(.tint)
+                            .foregroundStyle(Color.hodAegean)
                     }
                 }
             }
@@ -47,14 +59,16 @@ struct AskView: View {
         VStack(spacing: 14) {
             Spacer()
             Text("🏛️").font(.system(size: 44))
-            Text("Ask me anything out here").font(.headline)
+            Text("Ask me anything out here")
+                .font(.hodDisplay(.title2))
             Text("History, food, transit, hours — I know where you're standing and what's on your itinerary.")
-                .font(.footnote).foregroundStyle(.secondary)
+                .font(.footnote).foregroundStyle(Color.hodMuted)
                 .multilineTextAlignment(.center).padding(.horizontal, 40)
             ForEach(starters, id: \.self) { q in
                 Button(q) { send(q) }
                     .buttonStyle(.bordered)
                     .font(.subheadline)
+                    .tint(.hodAegean)
             }
             Spacer()
         }
@@ -67,7 +81,7 @@ struct AskView: View {
                     ForEach(messages) { msg in
                         MessageBubble(message: msg) { places in
                             recommendedPlaces = places
-                            selectedTab = 2 // Map tab
+                            selectedTab = 3 // Map tab
                         }
                         .id(msg.id)
                     }
@@ -91,11 +105,11 @@ struct AskView: View {
                     .font(.caption.weight(.semibold))
             }
             .toggleStyle(.button)
-            .tint(.blue)
+            .tint(.hodAegean)
             Text(memoryMode
                  ? "Answers come from your trip archive"
                  : "Ask about anything on this trip")
-                .font(.caption2).foregroundStyle(.secondary)
+                .font(.caption2).foregroundStyle(Color.hodMuted)
             Spacer()
         }
         .padding(.horizontal)
@@ -104,9 +118,7 @@ struct AskView: View {
 
     private var inputBar: some View {
         HStack(spacing: 8) {
-            // The keyboard's built-in mic button provides dictation — no
-            // custom speech code needed for V1.
-            TextField(memoryMode ? "Ask about your trip so far…" : "Ask Niko…", text: $input, axis: .vertical)
+            TextField(memoryMode ? "Ask about your trip so far…" : "Ask Nikos…", text: $input, axis: .vertical)
                 .textFieldStyle(.roundedBorder)
                 .focused($inputFocused)
                 .onSubmit { send(input) }
@@ -119,11 +131,14 @@ struct AskView: View {
             Button {
                 send(input)
             } label: {
-                Image(systemName: "arrow.up.circle.fill").font(.title2)
+                Image(systemName: "arrow.up.circle.fill")
+                    .font(.title2)
+                    .foregroundStyle(Color.hodAegean)
             }
             .disabled(input.trimmingCharacters(in: .whitespaces).isEmpty || isThinking)
         }
         .padding()
+        .background(Color.hodPaper)
     }
 
     private func send(_ text: String) {
@@ -139,7 +154,8 @@ struct AskView: View {
                     message: trimmed,
                     lat: location.coordinate?.latitude,
                     lon: location.coordinate?.longitude,
-                    memoryMode: memoryMode
+                    memoryMode: memoryMode,
+                    timestamp: ISO8601DateFormatter().string(from: Date())
                 ))
                 messages.append(ChatMessage(
                     role: .niko, text: response.reply,
@@ -150,35 +166,5 @@ struct AskView: View {
                 messages.append(ChatMessage(role: .niko, text: error.localizedDescription))
             }
         }
-    }
-}
-
-struct MessageBubble: View {
-    let message: ChatMessage
-    let onShowMap: ([Place]) -> Void
-
-    var body: some View {
-        VStack(alignment: message.role == .user ? .trailing : .leading, spacing: 6) {
-            Text(message.text)
-                .padding(12)
-                .background(message.role == .user ? Color.blue : Color(.secondarySystemBackground))
-                .foregroundStyle(message.role == .user ? .white : .primary)
-                .clipShape(RoundedRectangle(cornerRadius: 16))
-            if !message.places.isEmpty {
-                Button {
-                    onShowMap(message.places)
-                } label: {
-                    Label("Show these on the map", systemImage: "mappin.and.ellipse")
-                        .font(.subheadline.weight(.semibold))
-                }
-                .buttonStyle(.borderedProminent)
-            }
-            if !message.sources.isEmpty {
-                Text("📓 " + message.sources.joined(separator: " · "))
-                    .font(.caption2.weight(.semibold))
-                    .foregroundStyle(.blue)
-            }
-        }
-        .frame(maxWidth: .infinity, alignment: message.role == .user ? .trailing : .leading)
     }
 }

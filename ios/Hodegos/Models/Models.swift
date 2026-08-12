@@ -7,9 +7,10 @@ struct ChatRequest: Codable {
     let lat: Double?
     let lon: Double?
     let memoryMode: Bool
+    let timestamp: String
 
     enum CodingKeys: String, CodingKey {
-        case message, lat, lon
+        case message, lat, lon, timestamp
         case memoryMode = "memory_mode"
     }
 }
