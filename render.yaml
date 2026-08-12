@@ -12,8 +12,13 @@ services:
   - type: web
     name: hodegos-backend
     runtime: docker
-    dockerfilePath: ./backend/Dockerfile
-    dockerContext: . # repo root: the Dockerfile COPYs both backend/ and knowledge/
+    # Both the Dockerfile and its build context are the repo root. It COPYs
+    # backend/ and knowledge/ as siblings, so root is the only context that
+    # works — and keeping the file there means a service created by hand
+    # (which defaults to ./Dockerfile and ignores this blueprint) builds too,
+    # instead of failing with "open Dockerfile: no such file or directory".
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
     region: frankfurt
     plan: standard # NOT free — a spun-down instance costs 30-60s on first request
     healthCheckPath: /healthz
