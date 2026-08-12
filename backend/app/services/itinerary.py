@@ -67,8 +67,11 @@ def dining_for_region(region: str | None) -> list[dict]:
 def days(start: dt.date | None = None, count: int | None = None) -> list[dict]:
     """Trip days with their region and planned sites.
 
-    `start` defaults to today; `count` limits how many days forward. With no
-    arguments, returns the whole trip.
+    `count` limits how many days forward. With no arguments this returns the
+    *whole* trip: defaulting `start` to today would silently drop every day
+    already travelled, so a full-itinerary screen would shrink by a day each
+    morning and `trip_days_parsed` would report days remaining instead of days
+    parsed. Callers that want "from today" pass `start` explicitly.
     """
     schedule = tripday.schedule()
     if not schedule:
@@ -76,8 +79,7 @@ def days(start: dt.date | None = None, count: int | None = None) -> list[dict]:
     trip_start = min(r["start"] for r in schedule)
     trip_end = max(r["end"] for r in schedule)
 
-    first = start or tripday.today()
-    first = max(first, trip_start)
+    first = max(start or trip_start, trip_start)
 
     out = []
     day = first

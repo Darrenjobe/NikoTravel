@@ -46,6 +46,22 @@ CREATE TABLE IF NOT EXISTS threads (
     summarized_at REAL,
     entry_id TEXT                               -- journal threads -> journal_entries.id
 );
+
+-- Places hearted on the Map tab. The whole Google payload is denormalized here
+-- on purpose: saved pins then render straight from SQLite with no Places call,
+-- which is what makes them survive the Mt Athos leg (Sept 20-23, no data).
+CREATE TABLE IF NOT EXISTS saved_places (
+    place_id TEXT PRIMARY KEY,                  -- Google Place ID
+    saved_at REAL NOT NULL,
+    name TEXT,
+    address TEXT,
+    lat REAL, lon REAL,
+    category TEXT,
+    rating REAL,
+    rating_count INTEGER,
+    maps_url TEXT,
+    note TEXT
+);
 """
 
 # Indexes run AFTER _migrate(), because an index over a column that a legacy

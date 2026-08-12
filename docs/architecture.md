@@ -55,7 +55,8 @@ backend/
       journal.py       POST /api/journal/* (start, message, confirm, finish)
       today.py         GET  /api/today
       journey.py       GET  /api/places, /api/insights
-      map.py           GET  /api/map/pins
+      map.py           GET  /api/map/pins, /api/places/search
+      saved.py         GET/POST /api/saved, DELETE /api/saved/{place_id}
       admin.py         POST /api/rebuild-index, POST /api/jobs/{name}
     services/
       llm.py           LLM interface; AnthropicLLM (default) / OpenAILLM
@@ -197,6 +198,10 @@ All routes require `Authorization: Bearer <API_TOKEN>`.
 | `GET /api/places` | → `{entries[], preferences}` |
 | `GET /api/insights` | → `{insights[]}` |
 | `GET /api/map/pins` | → `{pins[]}` (journal places with coords) |
+| `GET /api/places/search?q=&lat=&lon=&n=` | → `{places[]}` from Google Places, with real Place IDs |
+| `GET /api/saved` | → `{places[]}` hearted on the Map tab, newest first |
+| `POST /api/saved` | a place object → `{ok, saved: true}` (idempotent) |
+| `DELETE /api/saved/{place_id}` | → `{ok, saved: false}` (no-op if absent) |
 | `POST /api/jobs/{morning\|evening\|insights}` | → job result |
 | `POST /api/rebuild-index` | → re-index knowledge/ into ChromaDB |
 

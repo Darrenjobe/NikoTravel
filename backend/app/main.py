@@ -21,6 +21,7 @@ from app.routers import (
     journal,
     journey,
     map as map_router,
+    saved,
     today,
 )
 from app.storage import db
@@ -64,7 +65,7 @@ app = FastAPI(title="Hodegos", docs_url=None, redoc_url=None)
 
 for router in (chat.router, journal.router, today.router, journey.router,
                map_router.router, conversations.router, itinerary.router,
-               events.router, admin.router):
+               events.router, saved.router, admin.router):
     app.include_router(router, dependencies=[Depends(require_token)])
 
 
