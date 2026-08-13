@@ -1,6 +1,6 @@
 """Assembles the ambient context block injected into every AI prompt.
 
-The traveler shouldn't have to tell Niko where they are, what day it is, or
+The traveler shouldn't have to tell Nikos where they are, what day it is, or
 what they've already thought about a place. The client sends lat/lon and a
 timestamp on every request; everything else is derived server-side from the
 itinerary and the journal.

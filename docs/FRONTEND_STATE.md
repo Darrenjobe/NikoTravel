@@ -55,7 +55,7 @@ HodegosApp
 - **Hamburger menu** (top-right) opens `SidebarMenuView` sheet: connection settings info, how-it-works notes, about section
 
 ### Ask (`AskView`)
-- Full-screen chat interface with Niko (the AI concierge)
+- Full-screen chat interface with Nikos (the AI concierge)
 - **Empty state:** three starter question buttons, serif headline prompt
 - **Thread:** scrollable message list; AI replies render full markdown; each reply can include a "Show these on the map" button that pushes recommended places to the Map tab and switches to it
 - **Memory mode toggle:** switches between general questions and questions answered from the user's trip archive (sent to backend as `memory_mode: true`)
@@ -64,7 +64,7 @@ HodegosApp
 - **Keyboard:** `scrollDismissesKeyboard(.interactively)` + "Done" button on keyboard toolbar
 
 ### Journal (`JournalView`)
-- Conversational journaling: user describes a place they just visited; Niko asks follow-up questions and extracts structured data
+- Conversational journaling: user describes a place they just visited; Nikos asks follow-up questions and extracts structured data
 - Optional Google Maps link field shown before first message (pre-populates location context)
 - **Confirmed place banner** (terracotta) shown when the backend has matched a place
 - `CandidateCard` shown when backend suggests a place match: Yes/No confirmation
@@ -92,8 +92,8 @@ HodegosApp
 ### Journey (`JourneyView`)
 - Segmented picker: **Places** / **Insights**
 - **Places:** list of all journaled entries; serif place name, sentiment emoji, one-line summary; taps into `EntryDetailView`
-  - `EntryDetailView`: Niko's summary, best/worst highlights (olive/crimson), Google Maps link or "unconfirmed" label
-  - Top section: `FlowChips` showing Niko's learned likes (olive) and dislikes (crimson)
+  - `EntryDetailView`: Nikos's summary, best/worst highlights (olive/crimson), Google Maps link or "unconfirmed" label
+  - Top section: `FlowChips` showing Nikos has learned likes (olive) and dislikes (crimson)
 - **Insights:** list of AI-generated insight cards with emoji, text, and tag
 - Loads from `/api/places` and `/api/insights`
 

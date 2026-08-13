@@ -13,12 +13,12 @@ Apply these strictly; they are not interchangeable.
 |---|---|---|
 | **Ὁδηγός** | Anywhere the **user reads the app's name** | `CFBundleDisplayName` (home-screen label), permission strings, App Store / TestFlight name, docs |
 | **Hodegos** | **Identifiers** — the Latin transliteration | Xcode target, module, bundle ID (`com.you.hodegos`), `HodegosApp.swift`, `ios/Hodegos/`, Info.plist keys (`HodegosBaseURL`, `HodegosAPIToken`), cache directory |
-| **Niko** | The **in-app assistant persona** only | "Ask Niko", "What Niko's learned", "Tell Niko about it…", the `.niko` chat role, backend system prompts |
+| **Nikos** | The **in-app assistant persona** only | "Ask Nikos", "What Nikos has learned", "Tell Nikos about it…", the `.niko` chat role, backend system prompts |
 
 Non-ASCII product/module names cause friction in bundle IDs, schemes, and
 command-line tooling, so the Greek script is applied purely as a display name.
-Niko is the guide *inside* Ὁδηγός — never rename the persona to match the app,
-and never use "Niko" for a new identifier.
+Nikos is the guide *inside* Ὁδηγός — never rename the persona to match the app,
+and never use "Nikos" for a new identifier.
 
 ---
 
@@ -26,7 +26,7 @@ and never use "Niko" for a new identifier.
 
 Ὁδηγός is a personal AI travel concierge app for **one user** on a 21-day
 spiritual & historical tour of Greece (**Sept 5–25**). Its assistant persona
-is Niko. Two core jobs:
+is Nikos. Two core jobs:
 
 1. **On-demand concierge** — answer questions about sites, food, transit, and
    hours in the moment, grounded in the user's itinerary and journal (RAG on
@@ -110,10 +110,10 @@ and the user should never be confused about which mode they're in.
 
 Layout, top to bottom:
 
-1. **Nav bar** — title "Ask Niko"; trailing **location chip** showing the
+1. **Nav bar** — title "Ask Nikos"; trailing **location chip** showing the
    reverse-geocoded neighborhood/city (e.g. "Plaka, Athens"). Hidden when
-   location is unavailable. Purpose: signals Niko knows where you are.
-2. **Thread** — chat bubbles. User right/blue/white-text; Niko left/gray.
+   location is unavailable. Purpose: signals Nikos knows where you are.
+2. **Thread** — chat bubbles. User right/blue/white-text; Nikos left/gray.
    Auto-scroll to newest. While waiting: a progress indicator in the thread
    (typing-dots feel), not a full-screen spinner.
 3. **Empty state** (no messages yet): 🏛️ glyph, "Ask me anything out here",
@@ -138,8 +138,8 @@ Layout, top to bottom:
 - **Source citations:** in memory mode, non-empty `sources[]` renders as a
   small blue "📓 …" caption under the bubble. This is the trust feature —
   when the AI claims to remember, it shows where the memory came from.
-- **Errors:** append an inline Niko-styled bubble with the error text
-  (offline copy: "No connection — Niko needs data to answer."). The user's
+- **Errors:** append an inline Nikos-styled bubble with the error text
+  (offline copy: "No connection — Nikos needs data to answer."). The user's
   message stays visible so they can re-send.
 - **TODO:** persist the thread across launches (currently in-memory only) —
   a simple Codable dump of the last N messages via CacheStore is enough.
@@ -156,7 +156,7 @@ orange strip with the place name.
 
 **Flow (state machine):**
 
-1. Fresh tab shows Niko's opener ("How was it? Tell me about somewhere you
+1. Fresh tab shows Nikos's opener ("How was it? Tell me about somewhere you
    just went…") locally — no network yet.
 2. First user send → `POST /api/journal/start` (with the pasted link, if any),
    then `POST /api/journal/message`.
@@ -165,7 +165,7 @@ orange strip with the place name.
    prominent) / **No** buttons. Input is disabled while a card is pending.
    - Yes → `POST /api/journal/confirm {accepted: true}` → pin the place name
      above the thread; conversation continues.
-   - No → `confirm {accepted: false}` → Niko acknowledges, entry proceeds
+   - No → `confirm {accepted: false}` → Nikos acknowledges, entry proceeds
      unlinked ("Unconfirmed location" placeholder downstream).
 4. Subsequent sends are plain `journal/message` calls; the backend runs the
    interview (one question per reply).
@@ -185,7 +185,7 @@ orange strip with the place name.
 ### 5.3 Map
 
 **Job:** spatial view of the trip — where you've been (journal) and where
-Niko suggests going (recommendations).
+Nikos suggests going (recommendations).
 
 - MapKit map, starts at user location (fallback: Athens).
 - **Two toggleable layers**, chips pinned at the top:
@@ -223,11 +223,11 @@ Niko suggests going (recommendations).
 
 **Places segment:**
 
-- "What Niko's learned" — horizontally scrolling preference chips
+- "What Nikos has learned" — horizontally scrolling preference chips
   (green "Likes: …", red "Dislikes: …") from `preferences`. Hide when empty.
 - Entry list: place name (or "Unconfirmed location"), sentiment emoji
   (loved 😍 / mixed 🙂 / skip 😕), one-line verdict. Newest first.
-- Tap → **detail screen**: Niko's summary, Best/Worst rows (green/red), and
+- Tap → **detail screen**: Nikos's summary, Best/Worst rows (green/red), and
   either the Google Maps link or an explicit "Unconfirmed location — no link"
   row. Never hide the unlinked state; it's honest.
 

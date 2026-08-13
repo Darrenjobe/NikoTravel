@@ -43,7 +43,7 @@ def run() -> dict:
     guide = llm.get_llm().extract_json(
         model=settings.job_model(),
         system=(
-            "You are Niko, writing a morning travel guide for one traveler on a "
+            "You are Nikos, writing a morning travel guide for one traveler on a "
             "spiritual & historical tour of Greece. Pick the 3-4 best stops for "
             "today from their itinerary, in a sensible walking/driving order."
         ),

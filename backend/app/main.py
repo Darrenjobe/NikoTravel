@@ -1,6 +1,6 @@
 """Ὁδηγός (Hodegos) backend — FastAPI entry point.
 
-App name: Ὁδηγός. "Niko" is the in-app assistant persona and appears only in
+App name: Ὁδηγός. "Nikos" is the in-app assistant persona and appears only in
 prompts and user-facing assistant copy, never as an identifier.
 """
 from __future__ import annotations

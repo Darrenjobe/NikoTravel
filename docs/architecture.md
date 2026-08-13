@@ -1,6 +1,6 @@
 # Ὁδηγός — V1 Architecture (Final)
 
-App name **Ὁδηγός** (identifiers use the transliteration `Hodegos`); **Niko**
+App name **Ὁδηγός** (identifiers use the transliteration `Hodegos`); **Nikos**
 is the in-app assistant persona.
 
 Single-user deployment for the Greece trip (Sept 5–25). Optimized for: reliable on

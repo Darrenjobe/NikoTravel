@@ -3,13 +3,13 @@
 **Ὁδηγός** (Greek for "guide", *o-dhi-GOS*) is a voice-friendly iOS travel
 companion built for a single-user V1 deployment: a 21-day spiritual &
 historical tour of Greece (Sept 5–25). Its in-app assistant persona is
-**Niko**.
+**Nikos**.
 
 > **Naming convention.** `Ὁδηγός` is used wherever the user reads the name
 > (app display name, docs, UI chrome). `Hodegos` is the Latin transliteration
 > used for identifiers — module and file names, Info.plist keys, hostnames,
-> service names, database and cache paths. `Niko` is *only* the assistant
-> persona: system prompts and assistant-facing copy like "Ask Niko".
+> service names, database and cache paths. `Nikos` is *only* the assistant
+> persona: system prompts and assistant-facing copy like "Ask Nikos".
 
 Two core jobs:
 

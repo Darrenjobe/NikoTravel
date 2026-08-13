@@ -17,7 +17,7 @@ initialisers, so no call site changes.
 Nothing required. Optional: `.tint(.hodAegean)` on the `TabView`.
 
 ### AskView.swift
-- `VStack(spacing: 0) { … }` → add `.hodScreen()` after `.navigationTitle("Ask Niko")`.
+- `VStack(spacing: 0) { … }` → add `.hodScreen()` after `.navigationTitle("Ask Nikos")`.
 - Location chip: `.foregroundStyle(.tint)` → `.foregroundStyle(Color.hodAegean)`.
 - Empty state: `Text("Ask me anything out here").font(.headline)` → `.font(.hodDisplay(.title2))`;
   starter buttons `.tint(.hodAegean)`.
@@ -50,7 +50,7 @@ Nothing required. Optional: `.tint(.hodAegean)` on the `TabView`.
 - Entry rows: place name `.font(.hodDisplay(.headline))`; use `.hodMuted` when `placeName == nil`
   so "Unconfirmed location" reads as a placeholder without hiding it.
 - `PreferenceChips`: `Color.green` → `.hodOlive`, `Color.red` → `.hodCrimson`.
-- `EntryDetailView`: `Section("Niko's summary")` header → `HodLabel(text: "Niko's summary")`;
+- `EntryDetailView`: `Section("Nikos's summary")` header → `HodLabel(text: "Nikos's summary")`;
   best `.hodOlive`, worst `.hodCrimson`; leave the "Unconfirmed location — no link" row as is.
 - `sentimentEmoji` unchanged — emoji stays the non-colour signal for accessibility.
 

@@ -42,7 +42,7 @@ there are no packages to add, ever.
 ## 3. Info.plist keys
 
 Target → **Info** tab → add four rows. Names below are what `APIClient.swift` and
-`LocationManager` actually read — the older spec draft calls them `Niko*`, ignore that.
+`LocationManager` actually read — the older spec draft calls them `Nikos*`, ignore that.
 
 | Key | Type | Value |
 |---|---|---|
@@ -66,7 +66,7 @@ If you point at `http://localhost:8000` for dev, add App Transport Security →
    Settings → General → VPN & Device Management.
 
 Sanity check before styling: Ask a question and get a reply; Today loads; Map shows pins.
-If Ask returns "No connection — Niko needs data to answer." the base URL or token is wrong —
+If Ask returns "No connection — Nikos needs data to answer." the base URL or token is wrong —
 that error is `APIError.offline`, thrown for *any* URLSession failure, not just airplane mode.
 
 ## 5. Apply the theme

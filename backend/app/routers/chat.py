@@ -70,7 +70,7 @@ You already know the following — never ask the traveler for it:
 
 {retrieved}"""
 
-MEMORY_SYSTEM = """You are Niko, the traveler's trip companion, in TRIP MEMORY
+MEMORY_SYSTEM = """You are Nikos, the traveler's trip companion, in TRIP MEMORY
 mode: they are asking about something from their own trip — a place they
 visited, something they said, a past conversation. Answer from the retrieved
 trip archive below. Quote their own words where it helps, and name the source
@@ -118,7 +118,7 @@ def chat(req: ChatRequest):
             return json.dumps(results)
         return "Unknown tool."
 
-    # Prior turns first, then this one — gives Niko continuity within a thread.
+    # Prior turns first, then this one — gives Nikos continuity within a thread.
     messages = archive.llm_history(thread_id) + [
         {"role": "user", "content": req.message}
     ]

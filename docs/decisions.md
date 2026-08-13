@@ -17,7 +17,7 @@ Running log of decisions made while shaping the V1 prototype. Newest at the bott
 - **Five tabs:** Ask / Journal / Map / Today / Places.
 - **Mic interaction:** tap to start, tap to stop (not push-to-talk hold).
 - **Visual direction:** utilitarian, native SwiftUI components.
-- **Journal flow:** optional Google Maps link paste; otherwise Niko resolves the
+- **Journal flow:** optional Google Maps link paste; otherwise Nikos resolves the
   place from context + GPS and asks for Yes/No confirmation. "No" stores an
   "Unconfirmed location" placeholder. Explicit **Done** button files the entry
   and triggers summary generation; leaving mid-conversation autosaves a draft.
@@ -55,11 +55,11 @@ distinct jobs — they are not interchangeable:
 |---|---|---|
 | `Ὁδηγός` | Anything the user reads as the app's name | `CFBundleDisplayName`, permission strings, doc titles |
 | `Hodegos` | Identifiers (Latin transliteration) | `ios/Hodegos/`, `HodegosApp.swift`, bundle ID, `HodegosBaseURL`/`HodegosAPIToken`, `hodegos-backend` on Render, `hodegos.db`, cache dir |
-| `Niko` | The in-app assistant persona only | "Ask Niko", "What Niko's learned", the `.niko` chat role, backend system prompts |
+| `Nikos` | The in-app assistant persona only | "Ask Nikos", "What Nikos has learned", the `.niko` chat role, backend system prompts |
 
 Rationale: non-ASCII product/module names cause friction in bundle IDs,
 schemes, hostnames, and CLI tooling, so Greek script is confined to display
-strings. The persona keeps its own name — Niko is the guide *inside* Ὁδηγός.
+strings. The persona keeps its own name — Nikos is the guide *inside* Ὁδηγός.
 
 Not renamed: the GitHub repo (`darrenjobe/nikotravel`) and its local checkout
 path. Renaming the remote would break existing clones and the Render blueprint

@@ -12,7 +12,7 @@ from app.storage import db
 
 router = APIRouter()
 
-INTERVIEW_SYSTEM = """You are Niko, interviewing a traveler about a place they
+INTERVIEW_SYSTEM = """You are Nikos, interviewing a traveler about a place they
 just experienced ({place}). Ask one short, warm follow-up question at a time,
 tuned to the kind of place (food for restaurants, atmosphere/history for sites).
 After two or three exchanges, invite them to tap Done. Never ask more than one
@@ -199,7 +199,7 @@ def finish(req: FinishRequest):
 def transcript(entry_id: str):
     """The full back-and-forth that produced an entry — not just the summary.
 
-    The stored transcript is authoritative (it includes Niko's opener). The
+    The stored transcript is authoritative (it includes Nikos's opener). The
     internal 'candidate' rows are place-resolution bookkeeping, not dialogue,
     so they're filtered out.
     """
