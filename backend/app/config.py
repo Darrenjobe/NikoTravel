@@ -63,6 +63,24 @@ OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 GOOGLE_PLACES_API_KEY = os.environ.get("GOOGLE_PLACES_API_KEY", "")
 TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 
+# Text to speech (ElevenLabs).
+#
+# VOICE and MODEL are separate things and easy to conflate: the 20-character
+# ID is the *voice*, while the model is a slug like eleven_flash_v2_5. Sending
+# a voice id as model_id is rejected by the API.
+#
+# The default voice is a Greek speaker who handles English too, which is why
+# the system prompt asks for Greek place names in Greek script — the
+# characters are what drive correct pronunciation.
+ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
+TTS_VOICE_ID = os.environ.get("TTS_VOICE_ID", "QnPbsq4pmOZkrE4RQQCA")
+TTS_MODEL = os.environ.get("TTS_MODEL", "eleven_flash_v2_5")
+TTS_OUTPUT_FORMAT = os.environ.get("TTS_OUTPUT_FORMAT", "mp3_44100_128")
+# Synthesis costs credits, so results are cached on the persistent disk and
+# the oldest are evicted past this ceiling.
+TTS_CACHE_MB = int(os.environ.get("TTS_CACHE_MB", "500"))
+TTS_MAX_CHARS = int(os.environ.get("TTS_MAX_CHARS", "5000"))
+
 # Trip
 TRIP_YEAR = int(os.environ.get("TRIP_YEAR", "2026"))
 TRIP_TZ = os.environ.get("TRIP_TZ", "Europe/Athens")

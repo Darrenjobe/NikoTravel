@@ -204,6 +204,47 @@ structured outputs are hidden, because journal extraction needs them; add
 hardcoding rates would go stale silently. Check current pricing on Anthropic's
 pricing page.
 
+## Speaking a response (ElevenLabs)
+
+`POST /api/tts` turns any text the app is showing — an Ask answer, a journal
+reply, a recommendation, the morning guide — into MP3 audio. It returns
+**audio bytes, not JSON**:
+
+```bash
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' \
+  -d '{"text":"Καλημέρα! Today we visit the **Ἀκρόπολις**."}' \
+  localhost:8000/api/tts --output reply.mp3 -D -
+```
+
+Check the `X-Hodegos-Cached` response header: `0` means it cost credits, `1`
+means it came from the disk cache. Identical text is only ever synthesized
+once.
+
+**Markdown is stripped before synthesis**, because a speech engine reads `**`
+and bullet characters aloud. Greek script is deliberately kept — the default
+voice is a Greek speaker, and the Greek characters are what produce correct
+pronunciation. Emoji are removed; the pattern that removes them explicitly
+avoids the Greek Extended block, where `Ὁδηγός` itself lives.
+
+See exactly what the voice will be given, without spending anything:
+
+```bash
+curl -s -X POST -H "$H" -H 'Content-Type: application/json' \
+  -d '{"text":"## Stops\n* **Πλάκα** — the old quarter 🏛️"}' \
+  localhost:8000/api/tts/preview
+# {"spoken_text":"Stops\nΠλάκα — the old quarter", ...}
+```
+
+`GET /api/tts/voices` lists the account's voices if you want a different one.
+
+**Voice id and model id are different fields.** The 20-character
+`QnPbsq4pmOZkrE4RQQCA` is the *voice*; `eleven_flash_v2_5` is the *model*.
+Passing a voice id as `model_id` is rejected by the API.
+
+Without `ELEVENLABS_API_KEY` the endpoint returns **503** and everything else
+keeps working. A failure from ElevenLabs itself returns **502** with their
+reason attached, so a quota problem doesn't look like a bug.
+
 ## Testing from your phone (same Wi-Fi)
 
 `127.0.0.1` is loopback — only the Mac itself can reach it. Bind to all

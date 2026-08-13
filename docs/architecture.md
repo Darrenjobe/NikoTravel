@@ -67,6 +67,7 @@ backend/
       tripday.py       date → trip-day/region mapping from the itinerary
       settings.py      runtime overrides for env config (model selection)
       models.py        Anthropic Models API catalog, cached 24h in SQLite
+      tts.py           ElevenLabs speech; markdown stripping + disk cache
       archive.py       stores every conversation turn (chat + journal)
     storage/
       db.py            SQLite schema + helpers
@@ -209,6 +210,9 @@ All routes require `Authorization: Bearer <API_TOKEN>`.
 | `GET /api/models/current` | → the selection only, no network call |
 | `POST /api/models` | `{chat_model?, job_model?}` → persists the choice |
 | `DELETE /api/models` | reset to the `CHAT_MODEL`/`JOB_MODEL` env defaults |
+| `POST /api/tts` | `{text, voice_id?, model_id?}` → **`audio/mpeg` bytes**, not JSON |
+| `POST /api/tts/preview` | → the cleaned text that would be spoken; spends no credits |
+| `GET /api/tts/voices` | → `{voices[]}` from the ElevenLabs account |
 | `POST /api/jobs/{morning\|evening\|insights}` | → job result |
 | `POST /api/rebuild-index` | → re-index knowledge/ into ChromaDB |
 

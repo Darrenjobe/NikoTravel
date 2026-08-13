@@ -24,6 +24,7 @@ from app.routers import (
     models,
     saved,
     today,
+    tts,
 )
 from app.storage import db
 
@@ -66,7 +67,8 @@ app = FastAPI(title="Hodegos", docs_url=None, redoc_url=None)
 
 for router in (chat.router, journal.router, today.router, journey.router,
                map_router.router, conversations.router, itinerary.router,
-               events.router, saved.router, models.router, admin.router):
+               events.router, saved.router, models.router, tts.router,
+               admin.router):
     app.include_router(router, dependencies=[Depends(require_token)])
 
 
@@ -91,6 +93,7 @@ def _log_config() -> None:
         ("ANTHROPIC_API_KEY", bool(os.environ.get("ANTHROPIC_API_KEY"))),
         ("GOOGLE_PLACES_API_KEY", bool(config.GOOGLE_PLACES_API_KEY)),
         ("TAVILY_API_KEY", bool(config.TAVILY_API_KEY)),
+        ("ELEVENLABS_API_KEY", bool(config.ELEVENLABS_API_KEY)),
     ]
     log.warning("Ὁδηγός config — .env %s at %s",
                 "found" if env_file.is_file() else "NOT FOUND", env_file)

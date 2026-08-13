@@ -37,6 +37,8 @@ services:
         sync: false
       - key: TAVILY_API_KEY
         sync: false
+      - key: ELEVENLABS_API_KEY
+        sync: false
       - key: TRIP_YEAR
         value: "2026"
 
