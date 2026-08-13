@@ -7,3 +7,7 @@ backend/data/
 xcuserdata/
 *.xcodeproj
 ios/Hodegos/Info.plist
+
+# Generated test itineraries and their isolated data dir
+testdata/
+backend/testdata-data/

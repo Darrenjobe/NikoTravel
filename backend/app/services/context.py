@@ -64,9 +64,19 @@ def build(
         where += f" (currently at {lat:.4f}, {lon:.4f})"
     when = now.strftime("%-I:%M %p on %A, %-d %B %Y")
     if ctx["trip_day"]:
+        # Derived, not hardcoded: a fixed "21-day trip" was correct only for
+        # the Greece itinerary and silently lied about any other one — telling
+        # the model day 1 of 21 on a five-day test trip, which changes how it
+        # paces advice.
+        schedule = tripday.schedule()
+        total = (
+            (max(r["end"] for r in schedule) - min(r["start"] for r in schedule)).days + 1
+            if schedule else None
+        )
+        length = f" of a {total}-day trip" if total else ""
         parts.append(
             f"The traveler is in {where}. Local time is {when} — "
-            f"day {ctx['trip_day']} of a 21-day trip."
+            f"day {ctx['trip_day']}{length}."
         )
     else:
         parts.append(
