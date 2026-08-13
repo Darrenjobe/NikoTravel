@@ -18,10 +18,14 @@ backend/data/
 # iOS client — never part of the server image.
 ios/
 
-# Docs and planning.
+# Docs and planning. The negations matter: BuildKit's `*` does not cross a
+# slash, so `*.md` should only catch root-level files — but the knowledge
+# trees are the one thing here that must never be dropped from the image, so
+# they are re-included explicitly rather than left to that reading.
 docs/
 *.md
 !knowledge/**/*.md
+!knowledge-test/**/*.md
 
 # Python and editor droppings.
 __pycache__/

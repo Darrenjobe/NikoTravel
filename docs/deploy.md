@@ -141,6 +141,56 @@ Commits touching only those paths are skipped. Everything else — including
 into the image, and ignoring it would leave `rebuild-index` re-chunking the
 old copy still inside the container.
 
+## 4b. Running the deployed server on the test itinerary
+
+Until September 5 the real itinerary has no "today", so on production every
+date-driven feature answers `{"skipped":"no itinerary region for today"}`. The
+image ships a second, isolated knowledge tree with a Chicago itinerary
+covering August 13 – September 3, so the whole daily experience can be
+exercised from the phone against the real URL.
+
+**Switch to it** — `hodegos-backend` → Environment, add two variables:
+
+```
+KNOWLEDGE_DIR   = /srv/knowledge-test
+ITINERARY_FILE  = /srv/knowledge-test/itinerary/chicago-north.md
+```
+
+Optionally `TRIP_TZ = America/Chicago` so "local time" in the injected context
+matches where you actually are.
+
+Render redeploys. Then **re-index, or the concierge keeps answering from the
+Greece chunks still in Chroma**:
+
+```bash
+curl -s -X POST -H "$H" $BASE/api/rebuild-index
+# -> {"indexed_chunks": 12, "trip_days_parsed": 22,
+#     "files": ["itinerary/chicago-north.md"]}
+```
+
+`files` listing only the Chicago file is the check that matters. The two trees
+are separate precisely so Greece and Chicago never share a Chroma collection —
+one folder holding both would have the concierge recommending Skokie delis for
+Thessaloniki.
+
+**Switch back:** delete both variables (and `TRIP_TZ`), let it redeploy, and
+run `rebuild-index` again. Nothing else changes; journal entries and saved
+places live in SQLite on the disk and are untouched either way.
+
+> The cron schedules stay tuned to Athens, so on Chicago time the morning job
+> fires at 11 PM the night before. Trigger it by hand while testing rather
+> than reading anything into the timing.
+
+To regenerate the file with different dates:
+
+```bash
+cd backend && python3 scripts/make_test_itinerary.py --city chicago-north \
+  --start 2026-08-13 --days 22 --out ../knowledge-test/itinerary/chicago-north.md
+```
+
+Then commit — it is baked into the image, so it has to be pushed to reach
+Render.
+
 ## 5. Re-indexing after content edits
 
 The `knowledge/` folder is baked into the image, so editing the itinerary

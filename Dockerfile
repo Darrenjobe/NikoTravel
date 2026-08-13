@@ -28,6 +28,12 @@ sys.exit(0 if os.path.isfile(model) else 'ONNX model not cached at ' + model)"
 
 COPY backend/app ./app
 COPY knowledge ./knowledge
+# A second, isolated knowledge tree holding the local test itinerary. It is
+# inert unless KNOWLEDGE_DIR and ITINERARY_FILE are pointed at it, and keeping
+# it separate is the point: everything under knowledge/ is globbed into one
+# Chroma collection, so a test itinerary living there would have the concierge
+# answering Greece questions with Skokie restaurants.
+COPY knowledge-test ./knowledge-test
 
 ENV KNOWLEDGE_DIR=/srv/knowledge \
     DATA_DIR=/data \
