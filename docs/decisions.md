@@ -70,7 +70,10 @@ desired.
 
 - **LLM:** Anthropic (Claude) primary via a swappable `services/llm.py`
   interface; OpenAI plain-chat fallback. Models per role via env
-  (`CHAT_MODEL`/`JOB_MODEL`, default `claude-opus-5`).
+  (`CHAT_MODEL`/`JOB_MODEL`, default `claude-sonnet-5`). Both are overridable
+  at runtime via `POST /api/models`, which persists to SQLite and wins over
+  the env vars — so the model can be changed from the phone mid-trip without
+  a redeploy.
 - **Hosting:** Render.com (Frankfurt) — Docker web service + 5GB persistent
   disk + three cron jobs that curl the job endpoints.
 - **Maps:** Apple MapKit in-app; Google Places API server-side for entity

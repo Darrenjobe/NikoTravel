@@ -47,11 +47,16 @@ API_TOKEN = os.environ.get("API_TOKEN", "")
 
 # LLM. Default provider is Anthropic; set LLM_PROVIDER=openai to swap.
 LLM_PROVIDER = os.environ.get("LLM_PROVIDER", "anthropic")
-# Chat needs snappy answers on the go; jobs can take their time.
-# claude-opus-5 is the recommended default; drop CHAT_MODEL to
-# claude-haiku-4-5 if on-the-ground latency matters more than depth.
-CHAT_MODEL = os.environ.get("CHAT_MODEL", "claude-opus-5")
-JOB_MODEL = os.environ.get("JOB_MODEL", "claude-opus-5")
+# Starting point only — these are the *fallbacks*. A selection made through
+# POST /api/models is stored in SQLite and wins over both of these, so the
+# model can be changed from the phone without an env var or a redeploy.
+#
+# Sonnet 5 is the default because it is the sensible place to sit for a trip's
+# worth of usage: chat runs on demand, and four cron jobs a day each generate
+# real content. Move CHAT_MODEL up to claude-opus-5 when depth matters more
+# than spend, or down to claude-haiku-4-5 when it doesn't.
+CHAT_MODEL = os.environ.get("CHAT_MODEL", "claude-sonnet-5")
+JOB_MODEL = os.environ.get("JOB_MODEL", "claude-sonnet-5")
 OPENAI_MODEL = os.environ.get("OPENAI_MODEL", "gpt-4o-mini")
 
 # External services

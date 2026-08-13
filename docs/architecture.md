@@ -33,7 +33,7 @@ offline (Mt Athos).
 
 | Area | Choice | Notes |
 |---|---|---|
-| LLM | Claude via Anthropic SDK, default `claude-opus-5`; swappable interface, OpenAI fallback available | Model IDs configurable per role via env (`CHAT_MODEL`, `JOB_MODEL`) |
+| LLM | Claude via Anthropic SDK, default `claude-sonnet-5`; swappable interface, OpenAI fallback available | Per role via env (`CHAT_MODEL`, `JOB_MODEL`), overridable at runtime through `POST /api/models` |
 | Hosting | Render.com — one Docker web service + persistent disk + cron jobs | Frankfurt region (closest to Greece) |
 | Data | SQLite (entries, conversations, insights) + ChromaDB (embeddings) on the persistent disk | No managed DB for one user |
 | Maps | Apple MapKit in-app; Google Places API server-side for entity resolution; deep links out to Google Maps | No Google SDK in the iOS app |
