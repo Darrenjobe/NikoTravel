@@ -73,7 +73,8 @@ TAVILY_API_KEY = os.environ.get("TAVILY_API_KEY", "")
 # the system prompt asks for Greek place names in Greek script — the
 # characters are what drive correct pronunciation.
 ELEVENLABS_API_KEY = os.environ.get("ELEVENLABS_API_KEY", "")
-TTS_VOICE_ID = os.environ.get("TTS_VOICE_ID", "QnPbsq4pmOZkrE4RQQCA")
+# TTS_VOICE_ID = os.environ.get("TTS_VOICE_ID", "QnPbsq4pmOZkrE4RQQCA")
+TTS_VOICE_ID = os.environ.get("TTS_VOICE_ID", "0ZJ6CiTzPB5e41TNRP12")
 TTS_MODEL = os.environ.get("TTS_MODEL", "eleven_flash_v2_5")
 TTS_OUTPUT_FORMAT = os.environ.get("TTS_OUTPUT_FORMAT", "mp3_44100_128")
 # Synthesis costs credits, so results are cached on the persistent disk and
