@@ -52,10 +52,18 @@ First build takes several minutes (Docker image + ChromaDB dependencies).
 
 Grab the URL from the dashboard (e.g. `https://hodegos-backend.onrender.com`).
 
+Set these once per terminal — the rest of this runbook assumes them:
+
 ```bash
 BASE=https://hodegos-backend.onrender.com     # your actual URL
 TOKEN=<your API_TOKEN>
+H="Authorization: Bearer $TOKEN"              # used as -H "$H" below
+```
 
+`--oauth2-bearer $TOKEN` is equivalent and shorter, and it is what the cron
+jobs use; either works everywhere `-H "$H"` appears.
+
+```bash
 # 1. Unauthenticated health check
 curl -s $BASE/healthz                          # → {"ok":true}
 
@@ -160,7 +168,7 @@ Optionally `TRIP_TZ = America/Chicago` so "local time" in the injected context
 matches where you actually are.
 
 Render redeploys. Then **re-index, or the concierge keeps answering from the
-Greece chunks still in Chroma**:
+Greece chunks still in Chroma** (`$BASE` and `$H` are set in section 3):
 
 ```bash
 curl -s -X POST -H "$H" $BASE/api/rebuild-index

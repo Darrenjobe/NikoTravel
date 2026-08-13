@@ -211,6 +211,9 @@ reply, a recommendation, the morning guide — into MP3 audio. It returns
 **audio bytes, not JSON**:
 
 ```bash
+TOKEN=$(grep '^API_TOKEN=' .env | cut -d= -f2-)
+H="Authorization: Bearer $TOKEN"
+
 curl -s -X POST -H "$H" -H 'Content-Type: application/json' \
   -d '{"text":"Καλημέρα! Today we visit the **Ἀκρόπολις**."}' \
   localhost:8000/api/tts --output reply.mp3 -D -
