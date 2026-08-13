@@ -130,6 +130,75 @@ def _migrate(c: sqlite3.Connection) -> None:
     have = {r["name"] for r in c.execute("PRAGMA table_info(conversations)")}
     if "thread_id" not in have:
         c.execute("ALTER TABLE conversations ADD COLUMN thread_id TEXT")
+    _backfill_threads(c)
+
+
+def _backfill_threads(c: sqlite3.Connection) -> None:
+    """Give pre-threading data a home in the history feed.
+
+    Threading arrived after journaling did, so anything written earlier has no
+    `threads` row and a NULL `thread_id`. Those entries still appear under
+    Places, which reads `journal_entries` directly — but they are invisible to
+    /api/conversations, which reads `threads`. Adding the column was not
+    enough; the old rows needed filling in.
+
+    Every statement here is idempotent, so this is a no-op once migrated.
+    """
+    # 1. One journal thread per entry, keyed the way journal.py keys them
+    #    (thread id == entry id), so new and backfilled threads are identical.
+    c.execute(
+        "INSERT OR IGNORE INTO threads (id, kind, started_at, last_at, entry_id) "
+        "SELECT id, 'journal', created_at, created_at, id FROM journal_entries"
+    )
+
+    # 2. Attach orphaned journal turns to their entry. The turn rows carry no
+    #    entry reference, but each entry stores its own transcript — matching
+    #    on that text is the only reliable link back, and it avoids inserting
+    #    duplicates of turns that are already there.
+    orphans = c.execute(
+        "SELECT id, text FROM conversations "
+        "WHERE thread_id IS NULL AND kind='journal'"
+    ).fetchall()
+    if orphans:
+        by_text: dict[str, list[int]] = {}
+        for row in orphans:
+            by_text.setdefault(row["text"], []).append(row["id"])
+        for entry in c.execute(
+            "SELECT id, transcript FROM journal_entries"
+        ).fetchall():
+            try:
+                turns = json.loads(entry["transcript"] or "[]")
+            except (TypeError, ValueError):
+                continue
+            for turn in turns:
+                for row_id in by_text.pop(turn.get("text"), []):
+                    c.execute(
+                        "UPDATE conversations SET thread_id=? WHERE id=?",
+                        (entry["id"], row_id),
+                    )
+
+    # 3. Orphaned Ask turns have no entry to anchor to, so group them by day.
+    #    A day is a coarser bucket than the real conversation, but it keeps the
+    #    turns readable and in order rather than dropping them from history.
+    days = c.execute(
+        "SELECT date(created_at, 'unixepoch') AS day, "
+        "       MIN(created_at) AS started, MAX(created_at) AS last "
+        "FROM conversations WHERE thread_id IS NULL AND kind<>'journal' "
+        "GROUP BY day"
+    ).fetchall()
+    for row in days:
+        thread_id = f"legacy-{row['day'].replace('-', '')}"
+        c.execute(
+            "INSERT OR IGNORE INTO threads (id, kind, started_at, last_at) "
+            "VALUES (?, 'ask', ?, ?)",
+            (thread_id, row["started"], row["last"]),
+        )
+        c.execute(
+            "UPDATE conversations SET thread_id=? "
+            "WHERE thread_id IS NULL AND kind<>'journal' "
+            "AND date(created_at, 'unixepoch')=?",
+            (thread_id, row["day"]),
+        )
 
 
 def new_id() -> str:
