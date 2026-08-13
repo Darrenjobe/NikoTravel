@@ -124,6 +124,23 @@ In Xcode's target Info tab:
 Then cut a TestFlight build. Dev-provisioned builds expire; TestFlight builds
 last 90 days and survive without the Mac.
 
+## 4a. What triggers a redeploy
+
+A service with a persistent disk cannot deploy with zero downtime — the disk
+attaches to one instance at a time, so Render stops the old one before
+starting the new. Every push is therefore a brief outage, which is why
+`render.yaml` sets build filters:
+
+```yaml
+buildFilters:
+  ignoredPaths: [docs/**, ios/**, README.md]
+```
+
+Commits touching only those paths are skipped. Everything else — including
+`knowledge/` — still deploys, which is deliberate: the itinerary is baked
+into the image, and ignoring it would leave `rebuild-index` re-chunking the
+old copy still inside the container.
+
 ## 5. Re-indexing after content edits
 
 The `knowledge/` folder is baked into the image, so editing the itinerary

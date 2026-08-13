@@ -19,6 +19,19 @@ services:
     # instead of failing with "open Dockerfile: no such file or directory".
     dockerfilePath: ./Dockerfile
     dockerContext: .
+    # A service with a persistent disk cannot deploy with zero downtime — the
+    # disk attaches to one instance at a time, so Render stops the old one
+    # first. That makes every push a brief outage, and a docs-only commit is
+    # not worth one while standing in a monastery courtyard.
+    #
+    # knowledge/ is deliberately NOT ignored: it is baked into the image, so
+    # an itinerary edit must rebuild. Skipping it would leave rebuild-index
+    # re-chunking the old file still sitting in the container.
+    buildFilters:
+      ignoredPaths:
+        - docs/**
+        - ios/**
+        - README.md
     region: frankfurt
     plan: standard # NOT free — a spun-down instance costs 30-60s on first request
     healthCheckPath: /healthz
