@@ -44,10 +44,12 @@ CITIES = {
         "title": "Chicago Test Trip",
         "blurb": "A local stand-in for the Greece itinerary, used to exercise "
                  "the daily guide, journaling and concierge from home.",
+        "focus": "Museums, architecture and neighborhood food",
         "tz": "America/Chicago",
         "regions": [
             {
                 "name": "The Loop & Millennium Park",
+                "theme": "The Civic Core",
                 "sites": [
                     ("Art Institute of Chicago", "One of the great encyclopedic museums; the Impressionist rooms and Thorne Miniature Rooms are the draws."),
                     ("Cloud Gate (The Bean)", "Anish Kapoor's mirrored sculpture in Millennium Park; best photographed early before crowds."),
@@ -63,6 +65,7 @@ CITIES = {
             },
             {
                 "name": "Near North & River North",
+                "theme": "Michigan Avenue & the River",
                 "sites": [
                     ("Museum of Contemporary Art", "Strong rotating exhibitions and a terrace overlooking Lake Shore Park."),
                     ("Navy Pier", "Touristy but the Centennial Wheel gives the best lake-side view of the skyline."),
@@ -78,6 +81,7 @@ CITIES = {
             },
             {
                 "name": "Hyde Park & the South Side",
+                "theme": "University, Fair Grounds and Wright",
                 "sites": [
                     ("Museum of Science and Industry", "A captured German U-boat, a coal mine, and the 1893 World's Fair's last building."),
                     ("Frederick C. Robie House", "Frank Lloyd Wright's Prairie School masterwork; timed tickets only."),
@@ -93,6 +97,7 @@ CITIES = {
             },
             {
                 "name": "Pilsen & Little Village",
+                "theme": "Mexican Chicago",
                 "sites": [
                     ("National Museum of Mexican Art", "Free, and the largest Mexican art collection in the country."),
                     ("16th Street Murals", "A continuous stretch of muralwork along the rail embankment."),
@@ -108,6 +113,7 @@ CITIES = {
             },
             {
                 "name": "Wicker Park & Logan Square",
+                "theme": "Boulevards & the Elevated Trail",
                 "sites": [
                     ("The 606 / Bloomingdale Trail", "An elevated rail line turned 2.7-mile park; walk it east to west."),
                     ("Illinois Centennial Monument", "The column at Logan Square's center, ringed by the boulevard."),
@@ -119,6 +125,200 @@ CITIES = {
                     "Breakfast": ["Bang Bang Pie & Biscuits (Biscuits and a back patio)"],
                     "Lunch": ["Big Star (Tacos and whiskey, big patio)", "Antique Taco (Smaller, quieter, very good)", "Handlebar (Vegetarian-leaning, bike-shop energy)"],
                     "Dinner": ["Kasama (Filipino; the tasting menu has a Michelin star)", "Lula Cafe (Logan Square's anchor since 1999)", "Longman & Eagle (Whiskey list and a hotel upstairs)"],
+                },
+            },
+        ],
+    },
+    # Northwest side and the near north suburbs — Skokie, Niles, Jefferson
+    # Park. Eleven small areas rather than five big ones, so a three-week run
+    # changes scenery every couple of days instead of repeating one stop list
+    # for most of a week.
+    #
+    # Each region's FIRST WORD is unique on purpose. Destination profiles are
+    # matched by splitting the region name on "(" or "&" and taking word one,
+    # so "Skokie Village" and "Skokie Lagoons" would both resolve to the same
+    # section and silently share stops.
+    "chicago-north": {
+        "title": "Chicago North Side & Near Suburbs — Test Trip",
+        "blurb": "A three-week local stand-in for the Greece itinerary, "
+                 "centered on Skokie, Niles and Jefferson Park.",
+        "focus": "Immigrant neighborhoods, forest preserves and roadside landmarks",
+        "tz": "America/Chicago",
+        "regions": [
+            {
+                "name": "Skokie Village Center",
+                "theme": "The Civic Core",
+                "sites": [
+                    ("Illinois Holocaust Museum & Education Center", "The major institution in the area; allow three hours and start with the permanent exhibition."),
+                    ("Skokie Theatre", "Restored 1912 storefront theatre, now a small music and comedy room."),
+                    ("Devonshire Cultural Center", "Village arts center with rotating local shows."),
+                    ("Skokie Public Library", "Consistently rated among the best in the country; good place to sit out afternoon heat."),
+                    ("Skokie Farmers Market", "Sunday mornings on Floral Avenue through October."),
+                ],
+                "dining": {
+                    "Breakfast": ["Blueberry Hill Breakfast Cafe (Big menu, faster than the line suggests)"],
+                    "Lunch": ["Pita Inn (The area's benchmark for shawarma, cash-efficient and fast)", "Kaufman's Bagel & Delicatessen (Old-school deli, get the whitefish salad)", "Ruby of Siam (Long-running Thai)"],
+                    "Dinner": ["Libertad (Latin small plates, the ambitious room in town)", "Real Urban Barbecue (Brisket and burnt ends)", "Shallots Bistro (Kosher fine dining)"],
+                },
+            },
+            {
+                "name": "Oakton Street Corridor",
+                "theme": "Green Space & Everyday Skokie",
+                "sites": [
+                    ("Emily Oaks Nature Center", "Thirteen acres of oak woodland with a short boardwalk loop."),
+                    ("Skokie Northshore Sculpture Park", "Sixty-plus works along two miles of the North Shore Channel."),
+                    ("Oakton Park", "Neighborhood park with the village pool and ball fields."),
+                    ("Oakton College Skokie Campus", "Small gallery and a quiet campus to walk."),
+                    ("North Shore Channel Trail", "Paved path running the length of the channel toward Evanston."),
+                ],
+                "dining": {
+                    "Breakfast": ["Ken's Diner & Grill (Kosher diner, enormous portions)"],
+                    "Lunch": ["Taboun Grill (Israeli grill)", "Slice of Life (Long-running kosher standby)", "Pita Inn (Worth repeating)"],
+                    "Dinner": ["Kabul House (Afghan; the pumpkin borani is the thing to order)", "Ruby of Siam (Reliable Thai)", "Real Urban Barbecue (When nothing else will do)"],
+                },
+            },
+            {
+                "name": "Old Orchard & North Skokie",
+                "theme": "Retail, Recreation and the Forest Edge",
+                "sites": [
+                    ("Westfield Old Orchard", "Open-air mall, unexpectedly pleasant to walk in late summer."),
+                    ("Skokie Heritage Museum", "Village history in a 1887 firehouse, plus a log cabin out back."),
+                    ("Weber Leisure Center", "Village recreation complex with an indoor track."),
+                    ("Lorel Park", "Small quiet park, good for a morning coffee outdoors."),
+                    ("Harms Woods", "Forest preserve along the North Branch; bridle trails and old oaks."),
+                ],
+                "dining": {
+                    "Breakfast": ["Walker Bros. Original Pancake House (The apple pancake, non-negotiable)"],
+                    "Lunch": ["Shake Shack Old Orchard (Reliable patio lunch)", "Hackney's on Harms (Famous for the onion loaf)", "Corner Bakery Cafe (Fast, fine)"],
+                    "Dinner": ["Wildfire Glenview (Wood-fired steaks and chops)", "Hackney's on Harms (Again, unashamedly)", "Kabul House (Short drive back into Skokie)"],
+                },
+            },
+            {
+                "name": "Niles & the Leaning Tower",
+                "theme": "Postwar Suburbia & Its Landmarks",
+                "sites": [
+                    ("Leaning Tower of Niles", "A half-scale replica of Pisa's tower, built in 1934 to hide a pool's water tanks."),
+                    ("Niles Historical Museum", "Local history in a converted 1930s building."),
+                    ("Grennan Heights Park", "Neighborhood park with a summer concert series."),
+                    ("Niles Family Fitness Center", "Village facility with a good lap pool."),
+                    ("St. Adalbert Cemetery", "Vast Polish-Catholic cemetery with notable funerary sculpture."),
+                ],
+                "dining": {
+                    "Breakfast": ["Kappy's American Grill & Pancake House (Pancake-house institution)"],
+                    "Lunch": ["Superdawg Drive-In (Carhop service since 1948; get the Whoopskidawg)", "Pita Inn Niles (Same operation, shorter line)", "Rosati's Pizza (Thin crust, tavern cut)"],
+                    "Dinner": ["Cafe Touche (Edison Park French, quietly excellent)", "Lou Malnati's Lincolnwood (Deep dish, order on arrival)", "Rosati's Pizza (If the day ran long)"],
+                },
+            },
+            {
+                "name": "Golf Mill & Northwest Niles",
+                "theme": "Mid-Century Commerce",
+                "sites": [
+                    ("Golf Mill Shopping Center", "1960s mall mid-redevelopment; a good look at suburban retail history."),
+                    ("Tam O'Shanter Golf Course", "Village-run nine-hole course on the old Tam O'Shanter grounds."),
+                    ("Ballard Park", "Small park with a walking loop."),
+                    ("Notre Dame College Prep", "Landmark campus on Dempster."),
+                    ("Jozwiak Park", "Quiet green space on the Des Plaines side."),
+                ],
+                "dining": {
+                    "Breakfast": ["Golden Nugget Pancake House (Open early, open late)"],
+                    "Lunch": ["Mitsuwa Marketplace Food Court (Japanese grocery with a ramen counter worth the drive)", "Panino's Pizzeria (Neighborhood Italian)", "Superdawg Drive-In (Still the best lunch in the area)"],
+                    "Dinner": ["Fountain Blue Restaurant (Old-school Des Plaines supper club)", "Sabatino's (Live piano, Italian-American, unchanged since 1974)", "Cafe Touche (Worth the second visit)"],
+                },
+            },
+            {
+                "name": "Jefferson Park",
+                "theme": "Polish Chicago",
+                "sites": [
+                    ("Copernicus Center", "The 1930 Gateway Theatre, now the heart of Polish Chicago's cultural life."),
+                    ("Jefferson Memorial Park", "Neighborhood park with a fieldhouse and summer programming."),
+                    ("Jefferson Park Transit Center", "Blue Line, Metra and a dozen bus routes converging — a good study in how the northwest side moves."),
+                    ("Jefferson Park Sunday Market", "Seasonal market beside the transit center."),
+                    ("Milwaukee Avenue Commercial Strip", "Polish delis, bakeries and taverns running north from Lawrence."),
+                ],
+                "dining": {
+                    "Breakfast": ["Charlie's Restaurant (Diner breakfast, no ceremony)"],
+                    "Lunch": ["Smak-Tak (Polish; the potato pancakes and pierogi)", "Gale Street Inn (Barbecue ribs since 1963)", "Fischman Liquors & Tavern (Beer selection far better than the storefront suggests)"],
+                    "Dinner": ["Gale Street Inn (The ribs, properly, at dinner)", "Tre Kronor (Swedish on Foster, warm room)", "Smak-Tak (If lunch went well)"],
+                },
+            },
+            {
+                "name": "Norwood Park & Edgebrook",
+                "theme": "The Oldest House & the Forest Preserves",
+                "sites": [
+                    ("Noble-Seymour-Crippen House", "The oldest building in Chicago, 1833; home of the Norwood Park Historical Society."),
+                    ("Caldwell Woods", "Forest preserve with the Bunker Hill trailhead."),
+                    ("LaBagh Woods", "Serious birding along the North Branch."),
+                    ("Edgebrook Golf Course", "Cook County course laid out in 1919."),
+                    ("Edgebrook Shopping District", "A few blocks of small storefronts around the Metra stop."),
+                ],
+                "dining": {
+                    "Breakfast": ["Cozy Corner Restaurant & Pancake House (Northwest side breakfast, unpretentious)"],
+                    "Lunch": ["Superdawg Drive-In (The neighborhood landmark)", "Zia's Trattoria (Edison Park Italian)", "Moretti's (Pizza and a patio)"],
+                    "Dinner": ["Cafe Touche (French, small, book ahead)", "Zia's Trattoria (Reliable second choice)", "Gale Street Inn (Short hop back to Jefferson Park)"],
+                },
+            },
+            {
+                "name": "Devon Avenue & West Ridge",
+                "theme": "The Immigrant Mile",
+                "sites": [
+                    ("Devon Avenue", "Two miles running from South Asian to Orthodox Jewish to Georgian within a few blocks — the best walk in the area."),
+                    ("Rosehill Cemetery", "Chicago's largest, with a Gothic entrance by W.W. Boyington."),
+                    ("Warren Park", "Big park with a golf course and a summer festival calendar."),
+                    ("Indian Boundary Park", "Historic park with a lagoon and a 1929 Tudor fieldhouse."),
+                    ("Croatian Cultural Center", "One of several diaspora institutions on the strip."),
+                ],
+                "dining": {
+                    "Breakfast": ["Nhu Lan Bakery (Banh mi and Vietnamese coffee)"],
+                    "Lunch": ["Ghareeb Nawaz (Cheap, fast, legendary)", "Uru-Swati (Vegetarian Indian, thali)", "Sabri Nihari (Pakistani; the nihari is the point)"],
+                    "Dinner": ["Hema's Kitchen (Long-running North Indian)", "Khan BBQ (Kebabs and karahi)", "Udupi Palace (South Indian, dosas)"],
+                },
+            },
+            {
+                "name": "Lincolnwood & Peterson Avenue",
+                "theme": "River, Trail and Roadside Signs",
+                "sites": [
+                    ("Proesel Park", "Lincolnwood's main park, with the aquatic center."),
+                    ("Lincolnwood Town Center", "Small indoor mall; a period piece."),
+                    ("Bunker Hill Forest Preserve", "Trails and a model-airplane field."),
+                    ("Legion Park", "River-side park with a path along the North Branch."),
+                    ("North Shore Channel Trail North", "The Lincolnwood stretch of the channel path."),
+                ],
+                "dining": {
+                    "Breakfast": ["Baker's Square (Pie for breakfast is a legitimate choice)"],
+                    "Lunch": ["Lou Malnati's Lincolnwood (Deep dish takes 45 minutes; plan)", "Wolfy's Hot Dogs (The giant sign on Peterson)", "Kaufman's Bagel & Delicatessen (Back toward Skokie)"],
+                    "Dinner": ["Chicago Kalbi (Korean barbecue on Lincoln)", "Cho Sun Ok (Small, excellent, cash preferred)", "Lou Malnati's Lincolnwood (No shame in twice)"],
+                },
+            },
+            {
+                "name": "Evanston Lakefront",
+                "theme": "The Lake and the University",
+                "sites": [
+                    ("Grosse Point Lighthouse", "1873 lighthouse; tower tours on summer weekends."),
+                    ("Northwestern University Lakefill", "Landfill peninsula with the best skyline view north of the city."),
+                    ("Evanston History Center (Dawes House)", "Home of the Nobel-winning vice president, on the lakefront."),
+                    ("Ladd Arboretum", "Seventeen acres along the canal with a bird sanctuary."),
+                    ("Lighthouse Beach", "Swimming beach beneath the lighthouse."),
+                ],
+                "dining": {
+                    "Breakfast": ["Lucky Platter (Eccentric room, very good breakfast)"],
+                    "Lunch": ["Hecky's Barbecue (It's the sauce)", "Mustard's Last Stand (Hot dogs by the Northwestern stadium)", "Buffalo Joe's (Wings, a student institution)"],
+                    "Dinner": ["Found Kitchen and Social House (Seasonal small plates)", "Oceanique (French seafood, the special-occasion room)", "Campagnola (Italian, quiet)"],
+                },
+            },
+            {
+                "name": "Portage Park & Old Irving",
+                "theme": "Movie Palaces & the Six Corners",
+                "sites": [
+                    ("Portage Park", "The 1959 Pan American Games pool where Olympic trials were swum."),
+                    ("Portage Theater", "1920 movie palace on Milwaukee Avenue."),
+                    ("Six Corners", "The Irving Park, Cicero and Milwaukee junction — the old northwest side downtown."),
+                    ("Independence Park", "Shaded park at the heart of Old Irving."),
+                    ("Irving Park Road Commercial Strip", "Diners, taverns and a good bakery or two."),
+                ],
+                "dining": {
+                    "Breakfast": ["Cozy Corner Restaurant & Pancake House (Second visit, no apologies)"],
+                    "Lunch": ["Smoque BBQ (Among the best barbecue in the city; go before noon)", "Chuck's Pizza (Tavern-cut, neighborhood standard)", "Superdawg Drive-In (One last time)"],
+                    "Dinner": ["Sabatino's (Piano bar, Italian-American, a time capsule)", "Smoque BBQ (If the line beat you at lunch)", "Tre Kronor (Ending on the Swedish note)"],
                 },
             },
         ],
@@ -159,28 +359,55 @@ def fmt_range(a: dt.date, b: dt.date) -> str:
 
 
 def build(city: str, start: dt.date, days: int) -> str:
+    """Emit the same document shape as the real Greece itinerary.
+
+    Frontmatter, "# Itinerary Overview" with the region table, then
+    "# Destination Profiles" with a numbered "## N. Name (Days X-Y)" heading,
+    a Theme line, Key Sites bullets and a Dining table per region. Matching
+    the real file matters beyond tidiness: it is what the concierge retrieves
+    and what the parser walks, so a test itinerary shaped differently would
+    exercise a different code path than the trip will.
+    """
     spec = CITIES[city]
     regions = spec["regions"]
     blocks = month_blocks(start, days, len(regions))
     used = sorted({i for i, _, _ in blocks})
+    end = start + dt.timedelta(days=days - 1)
 
-    out = [f"# {spec['title']}", "", spec["blurb"], "",
-           "> Generated by scripts/make_test_itinerary.py for local testing.",
-           "> Not the real trip — see greece-spiritual-historical-tour.md.", "",
-           "## Overview", "",
-           "| Region / Stop | Days Allocated | Dates |", "|---|---|---|"]
+    def trip_day(d: dt.date) -> int:
+        return (d - start).days + 1
+
+    out = [
+        "---",
+        "type: itinerary",
+        f"title: {spec['title']}",
+        f"duration: {days} days ({days - 1} nights)",
+        f"dates: {start.strftime('%B %-d')} - {end.strftime('%B %-d, %Y')}",
+        f"focus: {spec['focus']}",
+        "source_document: generated by scripts/make_test_itinerary.py (local testing)",
+        "---",
+        "",
+        "# Itinerary Overview",
+        "",
+        "| Region / Stop | Days Allocated | Dates |",
+        "|---|---|---|",
+    ]
     for i, a, b in blocks:
         n = (b - a).days + 1
         out.append(f"| {regions[i]['name']} | {n} Day{'s' if n > 1 else ''} | {fmt_range(a, b)} |")
-    out.append("")
+    out += ["", "---", "", "# Destination Profiles", ""]
 
     for n, i in enumerate(used, 1):
         r = regions[i]
         mine = [(a, b) for j, a, b in blocks if j == i]
-        span = fmt_range(mine[0][0], mine[-1][1])
-        # The heading must contain the region's first word: sections are
-        # matched by splitting the region name on "(" or "&" and taking it.
-        out += [f"## {n}. {r['name']} ({span})", "", "### Key Sites & Activities", ""]
+        lo, hi = trip_day(mine[0][0]), trip_day(mine[-1][1])
+        day_label = f"Day {lo}" if lo == hi else f"Days {lo}-{hi}"
+        # The heading must contain the region's first word: destination
+        # profiles are matched by splitting the region name on "(" or "&"
+        # and taking word one.
+        out += [f"## {n}. {r['name']} ({day_label})",
+                f"**Theme:** {r.get('theme', 'Local testing')}",
+                "", "### Key Sites & Activities", ""]
         out += [f"* **{name}:** {blurb}" for name, blurb in r["sites"]]
         out += ["", "### Dining Recommendations", "",
                 "| Meal | Option 1 | Option 2 | Option 3 |", "|---|---|---|---|"]
