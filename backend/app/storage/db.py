@@ -56,6 +56,17 @@ CREATE TABLE IF NOT EXISTS settings (
     updated_at REAL NOT NULL
 );
 
+-- What has already been pushed to Google Drive. Keyed by a local identity
+-- ("journal:e1", "thread:abc", "db") so a re-sync updates the same Drive file
+-- instead of adding a duplicate, and the checksum lets an hourly run skip
+-- everything that has not actually changed.
+CREATE TABLE IF NOT EXISTS drive_files (
+    local_id TEXT PRIMARY KEY,
+    drive_id TEXT NOT NULL,
+    checksum TEXT NOT NULL,
+    synced_at REAL NOT NULL
+);
+
 -- Places hearted on the Map tab. The whole Google payload is denormalized here
 -- on purpose: saved pins then render straight from SQLite with no Places call,
 -- which is what makes them survive the Mt Athos leg (Sept 20-23, no data).

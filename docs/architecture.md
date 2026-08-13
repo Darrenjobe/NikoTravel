@@ -68,6 +68,7 @@ backend/
       settings.py      runtime overrides for env config (model selection)
       models.py        Anthropic Models API catalog, cached 24h in SQLite
       tts.py           ElevenLabs speech; markdown stripping + disk cache
+      gdrive.py        Google Drive REST (OAuth refresh token)
       archive.py       stores every conversation turn (chat + journal)
     storage/
       db.py            SQLite schema + helpers
@@ -75,6 +76,7 @@ backend/
       morning.py       Morning Guide generation
       evening.py       Evening Recap compilation
       insights.py      Insight digest (conditional: 2+ interactions/24h)
+      backup.py        Hourly incremental push of the archive to Drive
   Dockerfile
   requirements.txt
   (render.yaml lives at the repo root — Render only reads it from there)
@@ -116,6 +118,7 @@ backend/
 | morning | `0 4 * * *` (7am EEST) | Looks up today's region, researches each planned site (Tavily), writes the Morning Guide to SQLite |
 | evening | `0 17 * * *` (8pm EEST) | Compiles the day's journal summaries into the Evening Recap |
 | insights | `0 11,20 * * *` | If 2+ interactions in trailing 24h: analyze archive window, emit insight cards |
+| backup | `0 * * * *` (hourly) | Pushes new/changed journal entries and transcripts to Google Drive; content-hashed, so a quiet hour uploads nothing |
 | summarize | on demand | Titles for the conversation history. Normally runs as a background task scheduled by `GET /api/conversations`, so no cron service is needed; `POST /api/jobs/summarize` forces it |
 
 ### Conversation threading

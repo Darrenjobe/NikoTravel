@@ -82,6 +82,24 @@ TTS_OUTPUT_FORMAT = os.environ.get("TTS_OUTPUT_FORMAT", "mp3_44100_128")
 TTS_CACHE_MB = int(os.environ.get("TTS_CACHE_MB", "500"))
 TTS_MAX_CHARS = int(os.environ.get("TTS_MAX_CHARS", "5000"))
 
+# Google Drive backup.
+#
+# A service account will NOT work on a personal Google account: it gets its
+# own Drive identity with zero storage quota, so uploads into a folder you
+# shared with it fail with "storage quota exceeded". An OAuth refresh token
+# makes the server act as you, so files are yours and use your quota.
+# scripts/google_auth.py walks through getting one.
+GOOGLE_CLIENT_ID = os.environ.get("GOOGLE_CLIENT_ID", "")
+GOOGLE_CLIENT_SECRET = os.environ.get("GOOGLE_CLIENT_SECRET", "")
+GOOGLE_REFRESH_TOKEN = os.environ.get("GOOGLE_REFRESH_TOKEN", "")
+# Optional. Left blank, the app creates and owns its own folder, which keeps
+# the drive.file scope sufficient — it can then never see the rest of Drive.
+GDRIVE_FOLDER_ID = os.environ.get("GDRIVE_FOLDER_ID", "")
+GDRIVE_FOLDER_NAME = os.environ.get("GDRIVE_FOLDER_NAME", "Ὁδηγός Trip Archive")
+# The SQLite snapshot is for restore, not reading, so it does not need to ride
+# along every hour.
+GDRIVE_DB_EVERY_HOURS = int(os.environ.get("GDRIVE_DB_EVERY_HOURS", "20"))
+
 # Trip
 TRIP_YEAR = int(os.environ.get("TRIP_YEAR", "2026"))
 TRIP_TZ = os.environ.get("TRIP_TZ", "Europe/Athens")

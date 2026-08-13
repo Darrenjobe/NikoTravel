@@ -245,6 +245,66 @@ Without `ELEVENLABS_API_KEY` the endpoint returns **503** and everything else
 keeps working. A failure from ElevenLabs itself returns **502** with their
 reason attached, so a quota problem doesn't look like a bug.
 
+## Backing the trip up to Google Drive
+
+An hourly job pushes every journal entry and Ask transcript to a Drive folder
+as Markdown, plus a periodic copy of the SQLite file. It is **incremental and
+content-hashed**: a quiet hour costs one token refresh and uploads nothing,
+and an entry that later gains its AI summary updates the same Drive file
+rather than adding a second copy.
+
+### One-time setup
+
+```bash
+python3 scripts/google_auth.py
+```
+
+It prints the three values to paste into `.env` and Render → Environment. The
+script's docstring has the Google Cloud Console steps (enable the Drive API,
+create a **Desktop app** OAuth client, publish the consent screen).
+
+> **Do not use a service account.** On a personal Google account a service
+> account has its own Drive identity with *zero storage quota*, so uploads
+> into a folder you shared with it fail with "storage quota exceeded" no
+> matter how you share it. The refresh token makes the server act as you, so
+> files are yours and use your 15GB.
+
+The scope is `drive.file` — access only to files this app creates. The job
+therefore creates its **own** folder ("Ὁδηγός Trip Archive") in My Drive and
+remembers its id, so it can never see the rest of your Drive. Set
+`GDRIVE_FOLDER_ID` only if you want a specific existing folder.
+
+### Running it
+
+```bash
+scripts/job.sh backup                # push anything new or changed
+scripts/job.sh 'backup?force=true'   # re-upload everything, including the .db
+```
+
+Response tells you what happened:
+
+```json
+{"uploaded": 3, "files": ["2026-09-12-taverna-klimataria.md", ...],
+ "unchanged": 41, "errors": [], "folder": "https://drive.google.com/..."}
+```
+
+`"skipped"` instead means the credentials aren't set — everything else in the
+app is unaffected.
+
+### What lands there
+
+| File | Contents |
+|---|---|
+| `2026-09-12-taverna-klimataria.md` | One per journal entry: verdict, best/worst, summary, full transcript |
+| `2026-09-12-ask-<topic>.md` | One per Ask conversation |
+| `hodegos.db` | SQLite snapshot, refreshed every `GDRIVE_DB_EVERY_HOURS` (20) |
+
+Journal *threads* are skipped deliberately — their transcript is already
+inside the entry file, so uploading both would duplicate every conversation.
+
+This is **backup, not sync**: nothing is ever read back from Drive. Restoring
+means downloading `hodegos.db` onto the disk.
+
 ## Testing from your phone (same Wi-Fi)
 
 `127.0.0.1` is loopback — only the Mac itself can reach it. Bind to all

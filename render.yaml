@@ -52,6 +52,15 @@ services:
         sync: false
       - key: ELEVENLABS_API_KEY
         sync: false
+      # Google Drive backup. A service account will NOT work on a personal
+      # Google account (no storage quota of its own), so these are an OAuth
+      # refresh token — see backend/scripts/google_auth.py.
+      - key: GOOGLE_CLIENT_ID
+        sync: false
+      - key: GOOGLE_CLIENT_SECRET
+        sync: false
+      - key: GOOGLE_REFRESH_TOKEN
+        sync: false
       - key: TRIP_YEAR
         value: "2026"
 
@@ -111,6 +120,28 @@ services:
       sh -c 'curl -fsS --max-time 600 -X POST
       -H "Authorization: Bearer $API_TOKEN"
       "https://$BACKEND_HOST/api/jobs/insights"'
+    envVars:
+      - key: API_TOKEN
+        sync: false
+      - key: BACKEND_HOST
+        fromService:
+          type: web
+          name: hodegos-backend
+          property: host
+
+  - type: cron
+    name: hodegos-backup
+    runtime: image
+    image:
+      url: docker.io/curlimages/curl:latest
+    region: frankfurt
+    # Hourly. The job is incremental and content-hashed, so a quiet hour is
+    # one token refresh and no uploads.
+    schedule: "0 * * * *"
+    dockerCommand: >-
+      sh -c 'curl -fsS --max-time 600 -X POST
+      -H "Authorization: Bearer $API_TOKEN"
+      "https://$BACKEND_HOST/api/jobs/backup"'
     envVars:
       - key: API_TOKEN
         sync: false

@@ -6,7 +6,7 @@ import inspect
 from fastapi import APIRouter, HTTPException, Query
 
 from app import config
-from app.jobs import evening, insights, morning, summarize
+from app.jobs import backup, evening, insights, morning, summarize
 from app.services import itinerary, rag, tripday
 
 router = APIRouter()
@@ -16,6 +16,7 @@ JOBS = {
     "evening": evening.run,
     "insights": insights.run,
     "summarize": summarize.run,
+    "backup": backup.run,
 }
 
 
