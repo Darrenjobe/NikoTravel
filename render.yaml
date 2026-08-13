@@ -71,12 +71,19 @@ services:
       url: docker.io/curlimages/curl:latest
     region: frankfurt
     schedule: "0 4 * * *" # 07:00 Athens
-    # Folded block scalar: the "Authorization: " colon would otherwise be
-    # parsed as a nested YAML mapping key.
+    # No quotes and no `sh -c` wrapper. Render already runs dockerCommand
+    # through a shell, so wrapping it again left the inner single quotes
+    # attached to the argument and the whole curl line was exec'd as one
+    # filename -> "not found", exit 127, every night.
+    #
+    # --oauth2-bearer sends exactly "Authorization: Bearer <token>" without a
+    # space-containing value, so nothing here needs quoting at all -- which
+    # also removes the YAML mapping-key hazard that the folded scalar was
+    # originally working around.
     dockerCommand: >-
-      sh -c 'curl -fsS --max-time 600 -X POST
-      -H "Authorization: Bearer $API_TOKEN"
-      "https://$BACKEND_HOST/api/jobs/morning"'
+      curl -fsS --max-time 600 -X POST
+      --oauth2-bearer $API_TOKEN
+      https://$BACKEND_HOST/api/jobs/morning
     envVars:
       - key: API_TOKEN
         sync: false
@@ -97,9 +104,9 @@ services:
     region: frankfurt
     schedule: "0 17 * * *" # 20:00 Athens
     dockerCommand: >-
-      sh -c 'curl -fsS --max-time 600 -X POST
-      -H "Authorization: Bearer $API_TOKEN"
-      "https://$BACKEND_HOST/api/jobs/evening"'
+      curl -fsS --max-time 600 -X POST
+      --oauth2-bearer $API_TOKEN
+      https://$BACKEND_HOST/api/jobs/evening
     envVars:
       - key: API_TOKEN
         sync: false
@@ -117,9 +124,9 @@ services:
     region: frankfurt
     schedule: "0 11,20 * * *" # 14:00 + 23:00 Athens
     dockerCommand: >-
-      sh -c 'curl -fsS --max-time 600 -X POST
-      -H "Authorization: Bearer $API_TOKEN"
-      "https://$BACKEND_HOST/api/jobs/insights"'
+      curl -fsS --max-time 600 -X POST
+      --oauth2-bearer $API_TOKEN
+      https://$BACKEND_HOST/api/jobs/insights
     envVars:
       - key: API_TOKEN
         sync: false
@@ -139,9 +146,9 @@ services:
     # one token refresh and no uploads.
     schedule: "0 * * * *"
     dockerCommand: >-
-      sh -c 'curl -fsS --max-time 600 -X POST
-      -H "Authorization: Bearer $API_TOKEN"
-      "https://$BACKEND_HOST/api/jobs/backup"'
+      curl -fsS --max-time 600 -X POST
+      --oauth2-bearer $API_TOKEN
+      https://$BACKEND_HOST/api/jobs/backup
     envVars:
       - key: API_TOKEN
         sync: false
